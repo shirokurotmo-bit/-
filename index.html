@@ -28,11 +28,11 @@
         p.subtitle { font-size: 0.75rem; color: var(--mid); margin: 0; letter-spacing: 0.05em; }
         .section-title { font-size: 0.85rem; color: var(--mid); margin: 6px 0; display: flex; justify-content: space-between; align-items: center; }
         .hint-text { font-size: 0.7rem; color: var(--light); }
-        .batch-btn, .helper-btn, .action-btn-mini, .gps-btn, .add-btn {
+        .batch-btn, .action-btn-mini, .gps-btn, .add-btn {
             font-family: inherit; font-size: 0.7rem; background: #f0ede6;
             border: 1px solid var(--faint); padding: 4px 8px; border-radius: 2px; cursor: pointer; color: var(--mid);
         }
-        .batch-btn:hover, .helper-btn:hover, .action-btn-mini:hover { background: var(--faint); }
+        .batch-btn:hover, .action-btn-mini:hover { background: var(--faint); }
         .origin-setting, .add-user-box {
             background: var(--paper); border: 1px solid var(--faint); border-radius: 2px; padding: 12px 14px; margin-bottom: 12px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 8px;
@@ -47,7 +47,6 @@
         .add-input { border: 1px solid var(--faint); background: #fff; padding: 6px 8px; border-radius: 2px; }
         .gps-btn { background: var(--deep); color: var(--paper); border: none; white-space: nowrap; padding: 6px 12px; }
         .add-btn { background: var(--mid); color: var(--paper); border: none; padding: 6px 16px; font-size: 0.85rem; white-space: nowrap; }
-        .search-helper { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 2px; }
         #userPool {
             min-height: 80px; background: #f0ebe1; border: 1px dashed var(--light); border-radius: 2px; padding: 8px; margin-bottom: 16px;
             display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start;
@@ -115,7 +114,7 @@
 
     <header>
         <h1>送迎ルート</h1>
-        <p class="subtitle">―― 控え室より選び、ルートを組む ――</p>
+        <p class="subtitle">―― リストより選び、ルートを組む ――</p>
     </header>
 
     <div class="origin-setting">
@@ -129,23 +128,16 @@
     </div>
 
     <div class="add-user-box">
-        <span class="origin-label">利用者を追加（プールへ登録）</span>
+        <span class="origin-label">利用者を追加（リストへ登録）</span>
         <div class="box-row">
             <input type="text" id="newName" class="add-input" placeholder="氏名（例：田中 太郎）" style="flex: 1;">
             <input type="text" id="newAddress" class="add-input" placeholder="住所（例：四日市市安島）" style="flex: 1.2;">
             <button type="button" id="addBtn" class="add-btn">登録</button>
         </div>
-        <div class="search-helper">
-            <span style="font-size: 0.75rem; color: var(--mid);">四日市エリアクイック:</span>
-            <button type="button" class="helper-btn" onclick="setPreset('諏訪栄町')">諏訪栄町</button>
-            <button type="button" class="helper-btn" onclick="setPreset('日永西')">日永西</button>
-            <button type="button" class="helper-btn" onclick="setPreset('智積町')">智積町</button>
-            <button type="button" class="helper-btn" onclick="setPreset('中部')">中部</button>
-        </div>
     </div>
 
     <div class="section-title">
-        <span>利用者プール（控）</span>
+        <span>利用者リスト（控）</span>
         <span class="hint-text">[＋ 追加] で送迎順へ</span>
     </div>
     <div id="userPool"></div>
@@ -153,7 +145,7 @@
     <div class="section-title" style="margin-top: 10px;">
         <span>本日の送迎順</span>
         <div>
-            <button type="button" class="batch-btn" onclick="returnAll()">一括で控へ戻す</button>
+            <button type="button" class="batch-btn" onclick="returnAll()">一括でリストへ戻す</button>
             <span class="hint-text" style="margin-left: 4px;">並び替え</span>
         </div>
     </div>
@@ -219,7 +211,7 @@
                     <span class="user-address">${u.address}</span>
                 </div>
                 <div class="card-actions">
-                    <button type="button" class="action-btn-mini" onclick="moveCard(this, ${isPool})">${isPool ? '＋ 追加' : '控へ戻す'}</button>
+                    <button type="button" class="action-btn-mini" onclick="moveCard(this, ${isPool})">${isPool ? '＋ 追加' : 'リストへ戻す'}</button>
                     <div class="menu-wrapper">
                         <button type="button" class="action-btn-mini" onclick="toggleMenu(event, this)">メニュー</button>
                         <div class="dropdown-menu">
@@ -300,13 +292,12 @@
             );
         }
 
-        const setPreset = town => $('newAddress').value = `四日市市${town}`;
         $('originInput').oninput = save;
 
         $('addBtn').onclick = () => {
             const n = $('newName').value.trim(), a = $('newAddress').value.trim();
             if (!n || !a) return alert('入力してください');
-            state.pool.push({ name: n, address: a.startsWith('四日市市') ? a : `四日市市${a}` });
+            state.pool.push({ name: n, address: a });
             $('newName').value = ''; $('newAddress').value = '';
             render(); save();
         };
