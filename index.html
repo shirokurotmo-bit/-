@@ -116,11 +116,11 @@
 
     <header>
         <h1>送迎ルート</h1>
-        <p class="subtitle">―― 控え室より選び、ルートを組む ――</p>
+        <p class="subtitle">―― リストから選び、ルートを組む ――</p>
     </header>
 
     <div class="origin-setting">
-        <span class="origin-label">出発地点（起点）</span>
+        <span class="origin-label">出発地点</span>
         <div class="origin-input-wrapper">
             <input type="text" id="originInput" class="origin-input" placeholder="現在地を取得または入力">
             <button type="button" class="gps-btn" onclick="fetchLocation()">現在地</button>
@@ -128,7 +128,7 @@
     </div>
 
     <div class="add-user-box">
-        <span class="origin-label">利用者を追加（プールへ登録）</span>
+        <span class="origin-label">利用者を追加（リストへ登録）</span>
         <div class="add-user-row">
             <input type="text" id="newName" class="add-input" placeholder="氏名（例：田中 太郎）">
             <input type="text" id="newAddress" class="add-input" placeholder="住所（例：四日市市安島）">
@@ -144,7 +144,7 @@
     </div>
 
     <div class="section-title">
-        <span>利用者プール（控）</span>
+        <span>利用者リスト</span>
         <span class="hint-text">[＋ 追加] で送迎順へ</span>
     </div>
     <div id="userPool"></div>
@@ -152,7 +152,7 @@
     <div class="section-title" style="margin-top: 10px;">
         <span>本日の送迎順</span>
         <div>
-            <button type="button" class="batch-btn" onclick="returnAll()">一括で控へ戻す</button>
+            <button type="button" class="batch-btn" onclick="returnAll()">一括でリストへ戻す</button>
             <span class="hint-text" style="margin-left: 4px;">並び替え</span>
         </div>
     </div>
