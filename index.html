@@ -103,24 +103,49 @@
             align-items: center;
             justify-content: space-between;
             box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            gap: 8px;
         }
 
         .origin-label {
             font-size: 0.8rem;
             color: var(--sumi-mid);
+            white-space: nowrap;
+        }
+
+        .origin-input-wrapper {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            gap: 6px;
         }
 
         .origin-input {
             font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             border: none;
             border-bottom: 1px solid var(--sumi-light);
             background: transparent;
             color: var(--sumi-deep);
             padding: 2px 4px;
             text-align: right;
-            width: 220px;
+            width: 100%;
             outline: none;
+        }
+
+        .gps-btn {
+            font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+            font-size: 0.7rem;
+            background: var(--sumi-deep);
+            color: var(--paper-color);
+            border: none;
+            padding: 4px 8px;
+            border-radius: 2px;
+            cursor: pointer;
+            white-space: nowrap;
+            letter-spacing: 0.05em;
+        }
+        .gps-btn:active {
+            background: var(--sumi-mid);
         }
 
         .add-user-box {
@@ -500,7 +525,10 @@
 
     <div class="origin-setting">
         <span class="origin-label">出発地点（起点）</span>
-        <input type="text" id="originInput" class="origin-input" value="三重県四日市市役所">
+        <div class="origin-input-wrapper">
+            <input type="text" id="originInput" class="origin-input" placeholder="現在地を取得または入力">
+            <button type="button" class="gps-btn" onclick="fetchCurrentLocation()">現在地</button>
+        </div>
     </div>
 
     <div class="add-user-box">
@@ -566,18 +594,16 @@
         const modalCancelBtn = document.getElementById('modalCancelBtn');
         const modalSubmitBtn = document.getElementById('modalSubmitBtn');
 
-        const CURRENT_VERSION = 'v6_clean_state';
+        const CURRENT_VERSION = 'v7_geolocation';
 
-        // 状態をJSONデータとして管理する堅牢な設計に変更
         let appState = {
-            origin: '三重県四日市市役所',
-            pool: [], // 例: [{id, name, address}]
+            origin: '',
+            pool: [],
             route: []
         };
 
         function saveAppData() {
             appState.origin = originInput.value;
-            // DOMから現在の状態を抽出しなおして保存
             appState.pool = extractItemsFromContainer(userPool);
             appState.route = extractItemsFromContainer(routeList);
             
@@ -634,7 +660,7 @@
                 localStorage.clear();
                 localStorage.setItem('sumi_version', CURRENT_VERSION);
                 appState = {
-                    origin: '三重県四日市市役所',
+                    origin: '',
                     pool: [],
                     route: []
                 };
@@ -642,12 +668,38 @@
                 try {
                     appState = JSON.parse(savedState);
                 } catch (e) {
-                    appState = { origin: '三重県四日市市役所', pool: [], route: [] };
+                    appState = { origin: '', pool: [], route: [] };
                 }
             }
             renderApp();
             initSortable();
         });
+
+        // 現在地取得処理（Geolocation API）
+        function fetchCurrentLocation() {
+            if (!navigator.geolocation) {
+                alert('お使いのブラウザは位置情報に対応していません。');
+                return;
+            }
+
+            originInput.value = '現在地を取得中...';
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    // Google Mapsで緯度経度を起点として正確に認識させる形式
+                    originInput.value = `${lat},${lng}`;
+                    saveAppData();
+                },
+                (error) => {
+                    console.error(error);
+                    alert('位置情報の取得に失敗しました。設定を確認してください。');
+                    originInput.value = '';
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        }
 
         function initSortable() {
             const sharedOptions = {
@@ -662,12 +714,11 @@
                     const item = evt.item;
                     const isPool = (evt.to.id === 'userPool');
                     
-                    // DOMを直接いじる代わりに再描画または状態更新して安全に切り替え
                     const user = {
                         name: item.getAttribute('data-name'),
                         address: item.getAttribute('data-address')
                     };
-                    item.remove(); // 既存のドラッグ要素を一度消してキレイに再生成させる
+                    item.remove();
                     
                     if (isPool) {
                         appState.pool.push(user);
@@ -772,14 +823,14 @@
             }
 
             if (!originVal) {
-                alert('出発地点を入力してください。');
+                alert('出発地点（現在地）を設定してください。');
                 return;
             }
 
             const names = items.map(item => item.querySelector('.user-name').textContent);
             
-            modalOriginText.textContent = originVal;
-            modalRouteFlowText.textContent = `[起点] ${originVal} → ` + names.join(' → ');
+            modalOriginText.textContent = originVal.includes(',') ? '現在のGPS座標' : originVal;
+            modalRouteFlowText.textContent = `[起点] ${modalOriginText.textContent} → ` + names.join(' → ');
 
             const origin = encodeURIComponent(originVal);
             const destination = encodeURIComponent(addresses[addresses.length - 1]);
