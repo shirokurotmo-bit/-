@@ -335,6 +335,7 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            position: relative;
         }
 
         .action-btn-mini {
@@ -351,11 +352,48 @@
             background-color: #f0ede6;
         }
 
-        .delete-btn {
-            color: var(--accent-red);
-            border-color: #e6cccc;
+        /* 編集メニュー用ポップアップ */
+        .menu-wrapper {
+            position: relative;
+            display: inline-block;
         }
-        .delete-btn:hover {
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: var(--paper-color);
+            border: 1px solid var(--sumi-faint);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 2px;
+            z-index: 100;
+            min-width: 90px;
+            margin-top: 4px;
+        }
+
+        .dropdown-menu.active {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 8px 12px;
+            font-size: 0.75rem;
+            color: var(--sumi-deep);
+            cursor: pointer;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f0ede6;
+        }
+
+        .dropdown-item.delete-item {
+            color: var(--accent-red);
+            border-top: 1px solid var(--sumi-faint);
+        }
+        .dropdown-item.delete-item:hover {
             background-color: #fdf2f2;
         }
 
@@ -515,7 +553,6 @@
             color: var(--paper-color);
         }
 
-        /* 馬が駆ける演出用アニメーション画面 */
         #chargeScreen {
             position: fixed;
             top: 0;
@@ -584,8 +621,8 @@
 <body>
 
     <header>
-        <h1>送迎道筋</h1>
-        <p class="subtitle">―― 控え室より選び、道筋を組む ――</p>
+        <h1>送迎ルート</h1>
+        <p class="subtitle">―― 控え室より選び、ルートを組む ――</p>
     </header>
 
     <div class="origin-setting">
@@ -630,16 +667,16 @@
     <div class="action-area">
         <button id="generateMapBtn" class="action-btn">
             <svg class="map-icon" viewBox="0 0 576 512"><path d="M408 120g0 56.9L253.6 246c-9.5 7.8-23.5 7.8-33 0L72 176.9V120c0-13.3 10.7-24 24-24h288c13.3 0 24 10.7 24 24zm160 80.9L416 339v93c0 17.8-19.2 29.1-34.7 20.5l-104.5-59L194.5 452.5C179.2 461.1 160 449.8 160 432v-93L8 200.9c-14.7-8.6-8.3-30.9 8.9-30.9h155.1l48.8-40c10.9-8.9 27.1-8.9 38 0l48.8 40h155.1c17.2 0 23.6 22.3 8.9 30.9z"/></svg>
-            地図の道筋を開く
+            地図のルートを開く
         </button>
     </div>
 
-    <!-- 遊び心のあるカスタム確認モーダル -->
+    <!-- カスタム確認モーダル -->
     <div id="sumiModal">
         <div class="modal-content">
             <div class="modal-header">―― 出陣の儀 ――</div>
             <div class="modal-body">
-                <span id="modalOriginText" style="font-weight: bold;"></span> からの道筋を検知しました。本日の布陣は以下の通りでよろしいですか？
+                <span id="modalOriginText" style="font-weight: bold;"></span> からのルートを検知しました。本日の布陣は以下の通りでよろしいですか？
                 <div class="modal-route-flow" id="modalRouteFlowText"></div>
             </div>
             <div class="modal-footer">
@@ -668,7 +705,7 @@
         const modalSubmitBtn = document.getElementById('modalSubmitBtn');
         const chargeScreen = document.getElementById('chargeScreen');
 
-        const CURRENT_VERSION = 'v8_galloping_horse';
+        const CURRENT_VERSION = 'v10_route_terminology';
 
         let appState = {
             origin: '',
@@ -719,11 +756,66 @@
                 </div>
                 <div class="card-actions">
                     <button type="button" class="action-btn-mini" onclick="${btnAction}">${btnText}</button>
-                    <button type="button" class="action-btn-mini delete-btn" onclick="deleteItem(this)">×</button>
+                    <div class="menu-wrapper">
+                        <button type="button" class="action-btn-mini" onclick="toggleMenu(event, this)">メニュー</button>
+                        <div class="dropdown-menu">
+                            <div class="dropdown-item" onclick="startEdit(this)">編集</div>
+                            <div class="dropdown-item delete-item" onclick="confirmDelete(this)">削除</div>
+                        </div>
+                    </div>
                     ${handleHtml}
                 </div>
             `;
             return item;
+        }
+
+        // メニューの開閉処理
+        function toggleMenu(event, btn) {
+            event.stopPropagation();
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                if (menu !== btn.nextElementSibling) menu.classList.remove('active');
+            });
+            const menu = btn.nextElementSibling;
+            menu.classList.toggle('active');
+        }
+
+        window.addEventListener('click', () => {
+            document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('active'));
+        });
+
+        // 編集処理
+        function startEdit(itemEl) {
+            const item = itemEl.closest('.route-item');
+            const currentName = item.getAttribute('data-name');
+            const currentAddress = item.getAttribute('data-address');
+
+            const newName = prompt('氏名を編集:', currentName);
+            if (newName === null) return;
+            const newAddress = prompt('住所を編集:', currentAddress);
+            if (newAddress === null) return;
+
+            if (!newName.trim() || !newAddress.trim()) {
+                alert('氏名と住所は空にできません。');
+                return;
+            }
+
+            item.setAttribute('data-name', newName.trim());
+            item.setAttribute('data-address', newAddress.trim());
+            item.querySelector('.user-name').textContent = `${newName.trim()} 様`;
+            item.querySelector('.user-address').textContent = newAddress.trim();
+
+            saveAppData();
+        }
+
+        // メニューからの削除処理
+        function confirmDelete(itemEl) {
+            const item = itemEl.closest('.route-item');
+            const name = item.getAttribute('data-name');
+            
+            if (confirm(`「${name} 様」を登録から削除しますか？`)) {
+                item.remove();
+                saveAppData();
+            }
         }
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -840,18 +932,6 @@
             saveAppData();
         }
 
-        function deleteItem(btn) {
-            const item = btn.closest('.route-item');
-            const name = item.getAttribute('data-name');
-            const address = item.getAttribute('data-address');
-            
-            appState.pool = appState.pool.filter(u => !(u.name === name && u.address === address));
-            appState.route = appState.route.filter(u => !(u.name === name && u.address === address));
-            
-            renderApp();
-            saveAppData();
-        }
-
         function returnAllToPool() {
             if (appState.route.length === 0) return;
             appState.pool.push(...appState.route);
@@ -922,14 +1002,10 @@
             sumiModal.classList.remove('active');
         });
 
-        // 「いざ、出陣！」クリック時に馬を走らせる演出を発動
         modalSubmitBtn.addEventListener('click', () => {
             sumiModal.classList.remove('active');
-            
-            // 馬の疾走アニメーション画面を表示
             chargeScreen.classList.add('active');
 
-            // 1.2秒（馬が走り抜ける時間）後に地図タブを開き、演出画面を閉じる
             setTimeout(() => {
                 if (pendingMapUrl) {
                     window.open(pendingMapUrl, '_blank');
