@@ -91,6 +91,20 @@
             color: var(--sumi-light);
         }
 
+        .batch-btn {
+            font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+            font-size: 0.7rem;
+            background: #f0ede6;
+            border: 1px solid var(--sumi-faint);
+            padding: 2px 8px;
+            border-radius: 2px;
+            cursor: pointer;
+            color: var(--sumi-mid);
+        }
+        .batch-btn:hover {
+            background: var(--sumi-faint);
+        }
+
         /* 起点設定エリア */
         .origin-setting {
             width: 100%;
@@ -458,55 +472,18 @@
         <span class="hint-text">[＋ 追加] で送迎順へ</span>
     </div>
     <div id="userPool">
-        <div class="route-item" data-address="四日市市智積町">
-            <div class="user-info">
-                <span class="user-name">高橋 健一 様</span>
-                <span class="user-address">四日市市智積町</span>
-            </div>
-            <div class="card-actions">
-                <button type="button" class="action-btn-mini" onclick="moveToRoute(this)">＋ 追加</button>
-                <button type="button" class="action-btn-mini delete-btn" onclick="deleteItem(this)">×</button>
-            </div>
-        </div>
-        <div class="route-item" data-address="四日市市日永西">
-            <div class="user-info">
-                <span class="user-name">渡辺 恵子 様</span>
-                <span class="user-address">四日市市日永西</span>
-            </div>
-            <div class="card-actions">
-                <button type="button" class="action-btn-mini" onclick="moveToRoute(this)">＋ 追加</button>
-                <button type="button" class="action-btn-mini delete-btn" onclick="deleteItem(this)">×</button>
-            </div>
-        </div>
+        <!-- 初期データは空 -->
     </div>
 
     <div class="section-title" style="margin-top: 10px;">
         <span>本日の送迎順</span>
-        <span class="hint-text">並び替え・控へ戻す</span>
+        <div>
+            <button type="button" class="batch-btn" onclick="returnAllToPool()">一括で控へ戻す</button>
+            <span class="hint-text" style="margin-left: 4px;">並び替え</span>
+        </div>
     </div>
     <div id="routeList">
-        <div class="route-item" data-address="四日市市諏訪町1-5">
-            <div class="user-info">
-                <span class="user-name">山田 太郎 様</span>
-                <span class="user-address">四日市市諏訪町</span>
-            </div>
-            <div class="card-actions">
-                <button type="button" class="action-btn-mini" onclick="moveToPool(this)">控へ戻す</button>
-                <button type="button" class="action-btn-mini delete-btn" onclick="deleteItem(this)">×</button>
-                <div class="drag-handle">三</div>
-            </div>
-        </div>
-        <div class="route-item" data-address="四日市市西島町10-2">
-            <div class="user-info">
-                <span class="user-name">佐藤 花子 様</span>
-                <span class="user-address">四日市市西島町</span>
-            </div>
-            <div class="card-actions">
-                <button type="button" class="action-btn-mini" onclick="moveToPool(this)">控へ戻す</button>
-                <button type="button" class="action-btn-mini delete-btn" onclick="deleteItem(this)">×</button>
-                <div class="drag-handle">三</div>
-            </div>
-        </div>
+        <!-- 初期データは空 -->
     </div>
 
     <div class="action-area">
@@ -529,10 +506,10 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            if(localStorage.getItem('sumi_user_pool')) {
+            if(localStorage.getItem('sumi_user_pool') !== null) {
                 userPool.innerHTML = localStorage.getItem('sumi_user_pool');
             }
-            if(localStorage.getItem('sumi_route_list')) {
+            if(localStorage.getItem('sumi_route_list') !== null) {
                 routeList.innerHTML = localStorage.getItem('sumi_route_list');
             }
             if(localStorage.getItem('sumi_origin')) {
@@ -551,7 +528,6 @@
                 delayOnTouchOnly: true,
                 group: 'sharedRoutes',
                 onAdd: function (evt) {
-                    // ゾーン間を移動したときの状態調整
                     const item = evt.item;
                     const isPool = (evt.to.id === 'userPool');
                     updateCardState(item, isPool);
@@ -561,7 +537,6 @@
                     saveAppData();
                 }
             };
-            // プール側は Sortable 自体は有効にするが、ハンドルがないため実質ドラッグ不可・追加ボタン専用にする
             new Sortable(userPool, sharedOptions);
             new Sortable(routeList, sharedOptions);
         }
@@ -589,6 +564,18 @@
         function deleteItem(btn) {
             const item = btn.closest('.route-item');
             item.remove();
+            saveAppData();
+        }
+
+        // 一括で送迎順のカードをすべて控へ戻す
+        function returnAllToPool() {
+            const items = [...routeList.querySelectorAll('.route-item')];
+            if (items.length === 0) return;
+            
+            items.forEach(item => {
+                userPool.appendChild(item);
+                updateCardState(item, true);
+            });
             saveAppData();
         }
 
