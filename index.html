@@ -20,12 +20,24 @@
             display: flex; flex-direction: column; align-items: center;
             -webkit-user-select: none; user-select: none; min-height: 100vh;
         }
-        header, .origin-setting, .add-user-box, .section-title, #userPool, #routeList, .action-area {
+        header, .day-selector, .origin-setting, .add-user-box, .section-title, #userPool, #routeList, .action-area {
             width: 100%; max-width: 480px;
         }
         header { text-align: center; border-bottom: 1px solid var(--faint); padding-bottom: 10px; margin-bottom: 12px; }
         h1 { font-size: 1.3rem; letter-spacing: 0.2em; margin: 0 0 2px; font-weight: normal; }
         p.subtitle { font-size: 0.75rem; color: var(--mid); margin: 0; letter-spacing: 0.05em; }
+        
+        .day-selector {
+            display: flex; gap: 4px; margin-bottom: 12px; background: var(--faint); padding: 3px; border-radius: 2px;
+        }
+        .day-btn {
+            flex: 1; font-family: inherit; font-size: 0.75rem; background: transparent; border: none;
+            padding: 6px 0; border-radius: 2px; cursor: pointer; color: var(--mid); text-align: center;
+        }
+        .day-btn.active {
+            background: var(--paper); color: var(--deep); font-weight: bold; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
         .section-title { font-size: 0.85rem; color: var(--mid); margin: 6px 0; display: flex; justify-content: space-between; align-items: center; }
         .hint-text { font-size: 0.7rem; color: var(--light); }
         .batch-btn, .action-btn-mini, .gps-btn, .add-btn {
@@ -117,6 +129,15 @@
         <p class="subtitle">―― リストより選び、ルートを組む ――</p>
     </header>
 
+    <div class="day-selector">
+        <button type="button" class="day-btn" data-day="mon" onclick="switchDay('mon')">月</button>
+        <button type="button" class="day-btn" data-day="tue" onclick="switchDay('tue')">火</button>
+        <button type="button" class="day-btn" data-day="wed" onclick="switchDay('wed')">水</button>
+        <button type="button" class="day-btn" data-day="thu" onclick="switchDay('thu')">木</button>
+        <button type="button" class="day-btn" data-day="fri" onclick="switchDay('fri')">金</button>
+        <button type="button" class="day-btn" data-day="sat" onclick="switchDay('sat')">土</button>
+    </div>
+
     <div class="origin-setting">
         <span class="origin-label">出発地点（起点）</span>
         <div class="box-row">
@@ -178,26 +199,45 @@
     </div>
 
     <script>
-        const VER = 'v11_smart';
+        const VER = 'v12_days';
         const $ = id => document.getElementById(id);
         const extract = c => [...c.querySelectorAll('.route-item')].map(i => ({ name: i.dataset.name, address: i.dataset.address }));
         
-        let state = { origin: '', pool: [], route: [] };
+        let currentDay = 'mon';
+        let allData = {
+            mon: { origin: '', pool: [], route: [] },
+            tue: { origin: '', pool: [], route: [] },
+            wed: { origin: '', pool: [], route: [] },
+            thu: { origin: '', pool: [], route: [] },
+            fri: { origin: '', pool: [], route: [] },
+            sat: { origin: '', pool: [], route: [] }
+        };
 
         function save() {
-            state.origin = $('originInput').value;
-            state.pool = extract($('userPool'));
-            state.route = extract($('routeList'));
+            allData[currentDay].origin = $('originInput').value;
+            allData[currentDay].pool = extract($('userPool'));
+            allData[currentDay].route = extract($('routeList'));
             localStorage.setItem('sumi_ver', VER);
-            localStorage.setItem('sumi_state', JSON.stringify(state));
+            localStorage.setItem('sumi_alldata', JSON.stringify(allData));
+            localStorage.setItem('sumi_day', currentDay);
         }
 
         function render() {
-            $('originInput').value = state.origin;
+            document.querySelectorAll('.day-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.day === currentDay);
+            });
+            const data = allData[currentDay];
+            $('originInput').value = data.origin;
             $('userPool').innerHTML = '';
             $('routeList').innerHTML = '';
-            state.pool.forEach(u => $('userPool').appendChild(createCard(u, true)));
-            state.route.forEach(u => $('routeList').appendChild(createCard(u, false)));
+            data.pool.forEach(u => $('userPool').appendChild(createCard(u, true)));
+            data.route.forEach(u => $('routeList').appendChild(createCard(u, false)));
+        }
+
+        function switchDay(day) {
+            save();
+            currentDay = day;
+            render();
         }
 
         function createCard(u, isPool) {
@@ -235,12 +275,13 @@
         function moveCard(btn, isPool) {
             const item = btn.closest('.route-item');
             const u = { name: item.dataset.name, address: item.dataset.address };
+            const data = allData[currentDay];
             if (isPool) {
-                state.pool = state.pool.filter(x => x.name !== u.name || x.address !== u.address);
-                state.route.push(u);
+                data.pool = data.pool.filter(x => x.name !== u.name || x.address !== u.address);
+                data.route.push(u);
             } else {
-                state.route = state.route.filter(x => x.name !== u.name || x.address !== u.address);
-                state.pool.push(u);
+                data.route = data.route.filter(x => x.name !== u.name || x.address !== u.address);
+                data.pool.push(u);
             }
             render(); save();
         }
@@ -268,10 +309,14 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            if (localStorage.getItem('sumi_ver') === VER && localStorage.getItem('sumi_state')) {
-                try { state = JSON.parse(localStorage.getItem('sumi_state')); } catch(e) {}
+            if (localStorage.getItem('sumi_ver') === VER && localStorage.getItem('sumi_alldata')) {
+                try {
+                    allData = JSON.parse(localStorage.getItem('sumi_alldata'));
+                    currentDay = localStorage.getItem('sumi_day') || 'mon';
+                } catch(e) {}
             } else {
-                localStorage.clear(); localStorage.setItem('sumi_ver', VER);
+                localStorage.clear();
+                localStorage.setItem('sumi_ver', VER);
             }
             render();
             ['userPool', 'routeList'].forEach(id => new Sortable($(id), {
@@ -297,14 +342,15 @@
         $('addBtn').onclick = () => {
             const n = $('newName').value.trim(), a = $('newAddress').value.trim();
             if (!n || !a) return alert('入力してください');
-            state.pool.push({ name: n, address: a });
+            allData[currentDay].pool.push({ name: n, address: a });
             $('newName').value = ''; $('newAddress').value = '';
             render(); save();
         };
 
         function returnAll() {
-            if (!state.route.length) return;
-            state.pool.push(...state.route); state.route = [];
+            const data = allData[currentDay];
+            if (!data.route.length) return;
+            data.pool.push(...data.route); data.route = [];
             render(); save();
         }
 
