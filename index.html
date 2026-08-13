@@ -10,98 +10,61 @@
     <style>
         /* Modern CSS Reset & Variables */
         :root {
-            --bg-color: #f0f2f5;
-            --surface-color: #ffffff;
-            --primary-color: #0f172a;
-            --primary-hover: #1e293b;
-            --accent-color: #3b82f6;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --border-color: #e2e8f0;
-            --danger-color: #ef4444;
-            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            --radius-md: 12px;
-            --radius-lg: 16px;
-            --radius-full: 9999px;
-            --nav-height: 70px;
+            --bg-color: #f0f2f5; --surface-color: #ffffff; --primary-color: #0f172a;
+            --accent-color: #3b82f6; --text-main: #0f172a; --text-muted: #64748b;
+            --border-color: #e2e8f0; --danger-color: #ef4444;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05); --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --radius-md: 12px; --radius-lg: 16px; --radius-full: 9999px; --nav-height: 70px;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            -webkit-user-select: none;
-            user-select: none;
-            padding-bottom: calc(var(--nav-height) + 20px);
+            background-color: var(--bg-color); color: var(--text-main);
+            -webkit-user-select: none; user-select: none; padding-bottom: calc(var(--nav-height) + 20px);
         }
 
-        /* Layout & Bento UI */
-        .app-container {
-            max-width: 480px;
-            margin: 0 auto;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
+        .app-container { max-width: 480px; margin: 0 auto; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
         header { padding: 8px 0 4px; }
         h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
 
-        .card {
-            background-color: var(--surface-color);
-            border-radius: var(--radius-lg);
-            padding: 16px;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border-color);
-        }
-
+        .card { background-color: var(--surface-color); border-radius: var(--radius-lg); padding: 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); }
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .section-title { font-size: 0.95rem; font-weight: 600; color: var(--text-muted); }
 
-        /* Inputs & Controls */
         .input-group { display: flex; gap: 8px; margin-bottom: 8px; }
-        .input-group:last-child { margin-bottom: 0; }
-
         input[type="text"] {
-            flex: 1; appearance: none; border: 1px solid var(--border-color);
-            background-color: #f8fafc; border-radius: var(--radius-md); padding: 12px 14px;
-            font-size: 1rem; color: var(--text-main); transition: all 0.2s ease; width: 100%;
+            flex: 1; appearance: none; border: 1px solid var(--border-color); background-color: #f8fafc;
+            border-radius: var(--radius-md); padding: 12px 14px; font-size: 1rem; color: var(--text-main); width: 100%;
         }
-        input[type="text"]:focus {
-            outline: none; border-color: var(--accent-color); background-color: var(--surface-color);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
+        input[type="text"]:focus { outline: none; border-color: var(--accent-color); background-color: var(--surface-color); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
 
-        button {
-            border: none; font-family: inherit; cursor: pointer; border-radius: var(--radius-md);
-            transition: transform 0.1s, background-color 0.2s; font-weight: 600;
-            display: inline-flex; align-items: center; justify-content: center;
+        /* Day Selection Chips */
+        .day-chips { display: flex; gap: 4px; margin: 12px 0; justify-content: space-between; }
+        .day-chip { flex: 1; position: relative; cursor: pointer; }
+        .day-chip input { position: absolute; opacity: 0; width: 0; height: 0; }
+        .day-chip span {
+            display: block; text-align: center; padding: 8px 0; font-size: 0.85rem; font-weight: 600;
+            border: 1px solid var(--border-color); border-radius: var(--radius-md);
+            color: var(--text-muted); background: var(--surface-color); transition: all 0.2s ease;
         }
+        .day-chip input:checked + span { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+
+        button { border: none; font-family: inherit; cursor: pointer; border-radius: var(--radius-md); font-weight: 600; display: inline-flex; align-items: center; justify-content: center; }
         button:active { transform: scale(0.96); }
-
-        .btn-primary { background-color: var(--primary-color); color: white; padding: 12px 16px; }
+        .btn-primary { background-color: var(--primary-color); color: white; padding: 12px 16px; width: 100%; }
         .btn-secondary { background-color: #f1f5f9; color: var(--text-main); padding: 8px 12px; font-size: 0.85rem; border: 1px solid var(--border-color); }
         .btn-text { background: transparent; color: var(--accent-color); padding: 4px 8px; font-size: 0.85rem; }
 
-        /* Lists & Items */
         .list-container { display: flex; flex-direction: column; gap: 10px; min-height: 80px; }
-
         #userPool { flex-direction: row; flex-wrap: wrap; padding: 12px; background-color: #e2e8f0; border-radius: var(--radius-lg); }
 
         .route-item {
-            background-color: var(--surface-color); border: 1px solid var(--border-color);
-            border-radius: var(--radius-md); padding: 12px 16px; display: flex; align-items: center;
-            justify-content: space-between; box-shadow: var(--shadow-sm); width: 100%;
+            background-color: var(--surface-color); border: 1px solid var(--border-color); border-radius: var(--radius-md);
+            padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow-sm); width: 100%;
         }
-        
         #userPool .route-item { width: auto; flex: 1 1 140px; padding: 10px 12px; box-shadow: none; }
         #userPool .route-item .address, #userPool .route-item .drag-handle { display: none !important; }
-
         .route-item.sortable-drag { background: var(--surface-color); transform: scale(1.02); box-shadow: var(--shadow-lg); z-index: 100; }
         .route-item.sortable-ghost { opacity: 0.4; background-color: #f8fafc; border: 2px dashed var(--border-color); }
 
@@ -111,48 +74,26 @@
 
         .item-actions { display: flex; align-items: center; gap: 4px; }
         .btn-icon { width: 36px; height: 36px; border-radius: var(--radius-md); background: #f8fafc; color: var(--text-muted); font-size: 1.1rem; }
-        
         .drag-handle { color: var(--border-color); padding: 8px; cursor: grab; display: flex; }
         .drag-handle svg { width: 20px; height: 20px; fill: currentColor; }
 
-        /* Bottom Navigation */
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0; height: var(--nav-height);
-            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border-top: 1px solid rgba(0,0,0,0.05); display: flex; justify-content: space-around;
-            align-items: center; padding: 0 8px; padding-bottom: env(safe-area-inset-bottom); z-index: 50;
-        }
+        /* Bottom Nav & FAB & Modal styles remain same but compressed for space */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: var(--nav-height); background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid rgba(0,0,0,0.05); display: flex; justify-content: space-around; align-items: center; padding: 0 8px; padding-bottom: env(safe-area-inset-bottom); z-index: 50; }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: transparent; color: var(--text-muted); font-size: 0.8rem; font-weight: 600; border-radius: 0; }
         .nav-item.active { color: var(--accent-color); }
         .nav-indicator { width: 4px; height: 4px; border-radius: 50%; background-color: transparent; margin-top: 4px; }
         .nav-item.active .nav-indicator { background-color: var(--accent-color); }
 
-        /* Floating Action Button (FAB) */
-        .fab {
-            position: fixed; right: 20px; bottom: calc(var(--nav-height) + 20px); width: 60px; height: 60px;
-            border-radius: var(--radius-full); background-color: var(--primary-color); color: white;
-            box-shadow: var(--shadow-lg); display: flex; align-items: center; justify-content: center; z-index: 40;
-        }
+        .fab { position: fixed; right: 20px; bottom: calc(var(--nav-height) + 20px); width: 60px; height: 60px; border-radius: var(--radius-full); background-color: var(--primary-color); color: white; box-shadow: var(--shadow-lg); display: flex; align-items: center; justify-content: center; z-index: 40; }
         .fab svg { width: 24px; height: 24px; fill: white; }
 
-        /* Modern Modal */
-        .modal-overlay {
-            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 1000;
-        }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.4); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 1000; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        
-        .modal-content {
-            background: var(--surface-color); width: 90%; max-width: 360px; border-radius: var(--radius-lg);
-            padding: 24px; box-shadow: var(--shadow-lg); transform: translateY(10px); transition: transform 0.2s ease;
-        }
+        .modal-content { background: var(--surface-color); width: 90%; max-width: 360px; border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-lg); transform: translateY(10px); transition: transform 0.2s ease; }
         .modal-overlay.active .modal-content { transform: translateY(0); }
-        
         .modal-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; }
         .modal-body { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 24px; }
         .modal-data-box { background: #f8fafc; padding: 12px; border-radius: var(--radius-md); margin-top: 12px; color: var(--text-main); font-weight: 500; word-break: break-all;}
-        
         .modal-actions { display: flex; gap: 12px; }
         .modal-btn { flex: 1; padding: 12px; font-size: 0.95rem; }
     </style>
@@ -164,26 +105,38 @@
             <h1>ルート管理</h1>
         </header>
 
-        <!-- 起点・登録カード -->
+        <!-- マスター登録カード -->
         <div class="card">
             <div class="section-header">
-                <span class="section-title">起点と新規登録</span>
+                <span class="section-title">起点と利用者マスター登録</span>
             </div>
-            <div class="input-group">
-                <input type="text" id="originInput" placeholder="出発地点（現在地を取得または入力）">
+            <div class="input-group" style="margin-bottom: 16px;">
+                <input type="text" id="originInput" placeholder="本日の出発地点（現在地など）">
                 <button type="button" class="btn-secondary" onclick="fetchLocation()">GPS</button>
             </div>
-            <div class="input-group" style="margin-top: 12px;">
-                <input type="text" id="newName" placeholder="氏名" style="flex: 1;">
-                <input type="text" id="newAddress" placeholder="住所" style="flex: 1.5;">
-                <button type="button" class="btn-primary" id="addBtn" style="padding: 12px;">追加</button>
+            
+            <div style="border-top: 1px dashed var(--border-color); padding-top: 16px;">
+                <div class="input-group">
+                    <input type="text" id="newName" placeholder="氏名" style="flex: 1;">
+                    <input type="text" id="newAddress" placeholder="住所" style="flex: 1.5;">
+                </div>
+                <!-- 利用曜日の選択 -->
+                <div class="day-chips">
+                    <label class="day-chip"><input type="checkbox" name="regDay" value="mon"><span>月</span></label>
+                    <label class="day-chip"><input type="checkbox" name="regDay" value="tue"><span>火</span></label>
+                    <label class="day-chip"><input type="checkbox" name="regDay" value="wed"><span>水</span></label>
+                    <label class="day-chip"><input type="checkbox" name="regDay" value="thu"><span>木</span></label>
+                    <label class="day-chip"><input type="checkbox" name="regDay" value="fri"><span>金</span></label>
+                    <label class="day-chip"><input type="checkbox" name="regDay" value="sat"><span>土</span></label>
+                </div>
+                <button type="button" class="btn-primary" id="addBtn">マスターに登録</button>
             </div>
         </div>
 
         <!-- 待機リスト -->
         <div>
             <div class="section-header">
-                <span class="section-title">利用者リスト（待機）</span>
+                <span class="section-title">本日の利用者（待機）</span>
             </div>
             <div id="userPool" class="list-container"></div>
         </div>
@@ -191,7 +144,7 @@
         <!-- 送迎ルート -->
         <div>
             <div class="section-header">
-                <span class="section-title">本日のルート</span>
+                <span class="section-title">送迎ルート</span>
                 <button type="button" class="btn-text" onclick="returnAll()">すべて待機に戻す</button>
             </div>
             <div id="routeList" class="list-container"></div>
@@ -218,7 +171,7 @@
         <div class="modal-content">
             <div class="modal-title">マップを起動します</div>
             <div class="modal-body">
-                以下の順番でGoogleマップの経路案内を作成します。
+                以下の順番で経路案内を作成します。
                 <div class="modal-data-box" id="modalFlowText"></div>
             </div>
             <div class="modal-actions">
@@ -229,10 +182,9 @@
     </div>
 
     <script>
-        const APP_VERSION = 'v14_modern';
+        const APP_VERSION = 'v15_master';
         const $ = id => document.getElementById(id);
         
-        // ユーティリティ: HTMLエスケープ（XSS対策）
         const escapeHTML = str => {
             if (!str) return '';
             return String(str).replace(/[&<>"']/g, match => {
@@ -241,22 +193,28 @@
             });
         };
 
-        const extractData = container => Array.from(container.querySelectorAll('.route-item')).map(item => ({ name: item.dataset.name, address: item.dataset.address }));
-        
+        // UUID生成器 (Fallback対応)
+        const generateUUID = () => crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2) + Date.now().toString(36);
+
         let currentDay = 'mon';
+        
+        // データ構造の抜本的見直し：users(マスター)と各曜日のroute(IDリスト)のみ
         let store = {
-            mon: { origin: '', pool: [], route: [] },
-            tue: { origin: '', pool: [], route: [] },
-            wed: { origin: '', pool: [], route: [] },
-            thu: { origin: '', pool: [], route: [] },
-            fri: { origin: '', pool: [], route: [] },
-            sat: { origin: '', pool: [], route: [] }
+            users: [], // { id, name, address, days: ['mon', 'thu'] }
+            mon: { origin: '', route: [] }, // route配列にはuser.idのみ格納
+            tue: { origin: '', route: [] },
+            wed: { origin: '', route: [] },
+            thu: { origin: '', route: [] },
+            fri: { origin: '', route: [] },
+            sat: { origin: '', route: [] }
         };
+
+        // UIから現在の並び順のIDリストを取得
+        const extractRouteIds = () => Array.from($('routeList').querySelectorAll('.route-item')).map(item => item.dataset.id);
 
         const saveState = () => {
             store[currentDay].origin = $('originInput').value;
-            store[currentDay].pool = extractData($('userPool'));
-            store[currentDay].route = extractData($('routeList'));
+            store[currentDay].route = extractRouteIds();
             localStorage.setItem('app_version', APP_VERSION);
             localStorage.setItem('app_data', JSON.stringify(store));
             localStorage.setItem('app_day', currentDay);
@@ -267,13 +225,24 @@
                 btn.classList.toggle('active', btn.dataset.day === currentDay);
             });
             
-            const data = store[currentDay];
-            $('originInput').value = data.origin;
+            // 登録フォームの曜日のデフォルト値を現在の曜日に設定
+            document.querySelectorAll('input[name="regDay"]').forEach(cb => {
+                cb.checked = (cb.value === currentDay);
+            });
+
+            const dayData = store[currentDay];
+            $('originInput').value = dayData.origin;
             $('userPool').innerHTML = '';
             $('routeList').innerHTML = '';
             
-            data.pool.forEach(user => $('userPool').appendChild(createItemElement(user, true)));
-            data.route.forEach(user => $('routeList').appendChild(createItemElement(user, false)));
+            // 待機リスト（Pool）の動的生成：
+            // マスターの中から「今日の利用設定がある」かつ「まだルートに入っていない」人を抽出
+            const poolUsers = store.users.filter(u => u.days.includes(currentDay) && !dayData.route.includes(u.id));
+            poolUsers.forEach(user => $('userPool').appendChild(createItemElement(user, true)));
+
+            // ルートリストの生成：IDリストの順にマスターから実体を取得して描画
+            const routeUsers = dayData.route.map(id => store.users.find(u => u.id === id)).filter(Boolean);
+            routeUsers.forEach(user => $('routeList').appendChild(createItemElement(user, false)));
         };
 
         const switchDay = (day) => {
@@ -286,6 +255,7 @@
         const createItemElement = (user, isPool) => {
             const el = document.createElement('div');
             el.className = 'route-item';
+            el.dataset.id = user.id; // UUIDを持たせる
             el.dataset.name = user.name;
             el.dataset.address = user.address;
             
@@ -294,7 +264,6 @@
             const iconTrash = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--danger-color)" stroke-width="2" fill="none"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
             const iconDrag = `<svg viewBox="0 0 24 24"><path d="M3 15h18v-2H3v2zm0 4h18v-2H3v2zm0-8h18V9H3v2zm0-6v2h18V5H3z"/></svg>`;
 
-            // XSS対策として入力値をエスケープして展開
             el.innerHTML = `
                 <div class="item-info">
                     <span class="item-name">${escapeHTML(user.name)}</span>
@@ -314,26 +283,33 @@
         };
 
         const toggleState = (btn, isPool) => {
-            const item = btn.closest('.route-item');
-            const user = { name: item.dataset.name, address: item.dataset.address };
-            const data = store[currentDay];
+            // 要素をDOM上で移動させるのではなく、データ(route配列)を更新して再描画
+            const id = btn.closest('.route-item').dataset.id;
             
             if (isPool) {
-                data.pool = data.pool.filter(x => x.name !== user.name || x.address !== user.address);
-                data.route.push(user);
+                store[currentDay].route.push(id);
             } else {
-                data.route = data.route.filter(x => x.name !== user.name || x.address !== user.address);
-                data.pool.push(user);
+                store[currentDay].route = store[currentDay].route.filter(routeId => routeId !== id);
             }
-            renderUI();
             saveState();
+            renderUI();
         };
 
         const deleteItem = (btn) => {
             const item = btn.closest('.route-item');
-            if (confirm(`「${item.dataset.name}」を完全に削除しますか？`)) {
-                item.remove();
+            const id = item.dataset.id;
+            const name = item.dataset.name;
+            
+            // 全曜日・マスターから完全に削除する仕様
+            if (confirm(`「${name}」のマスター登録を完全に削除しますか？`)) {
+                // マスターから削除
+                store.users = store.users.filter(u => u.id !== id);
+                // 全曜日のrouteからも該当IDを除外
+                ['mon','tue','wed','thu','fri','sat'].forEach(d => {
+                    store[d].route = store[d].route.filter(routeId => routeId !== id);
+                });
                 saveState();
+                renderUI();
             }
         };
 
@@ -353,28 +329,32 @@
         $('addBtn').addEventListener('click', () => {
             const name = $('newName').value.trim();
             const address = $('newAddress').value.trim();
-            if (!name || !address) return alert('氏名と住所を入力してください');
             
-            store[currentDay].pool.push({ name, address });
+            // チェックされた曜日を取得
+            const selectedDays = Array.from(document.querySelectorAll('input[name="regDay"]:checked')).map(cb => cb.value);
+
+            if (!name || !address) return alert('氏名と住所を入力してください');
+            if (selectedDays.length === 0) return alert('利用する曜日を1つ以上選択してください');
+            
+            // UUIDを生成し、マスターに追加
+            const newUser = { id: generateUUID(), name, address, days: selectedDays };
+            store.users.push(newUser);
+            
             $('newName').value = '';
             $('newAddress').value = '';
-            renderUI();
+            
             saveState();
+            renderUI();
         });
 
         const returnAll = () => {
-            const data = store[currentDay];
-            if (!data.route.length) return;
-            data.pool.push(...data.route);
-            data.route = [];
-            renderUI();
+            store[currentDay].route = [];
             saveState();
+            renderUI();
         };
 
         let generatedMapUrl = '';
-        const toggleModal = (show) => {
-            $('confirmModal').classList.toggle('active', show);
-        };
+        const toggleModal = (show) => { $('confirmModal').classList.toggle('active', show); };
 
         $('mapBtn').addEventListener('click', () => {
             const items = Array.from(document.querySelectorAll('#routeList .route-item'));
@@ -399,12 +379,9 @@
 
         $('executeMapBtn').addEventListener('click', () => {
             toggleModal(false);
-            if (generatedMapUrl) {
-                window.open(generatedMapUrl, '_blank', 'noopener,noreferrer');
-            }
+            if (generatedMapUrl) window.open(generatedMapUrl, '_blank', 'noopener,noreferrer');
         });
 
-        // Initialization
         window.addEventListener('DOMContentLoaded', () => {
             const savedVer = localStorage.getItem('app_version');
             const validDays = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
@@ -414,11 +391,8 @@
                     store = JSON.parse(localStorage.getItem('app_data'));
                     const savedDay = localStorage.getItem('app_day');
                     currentDay = validDays.includes(savedDay) ? savedDay : 'mon';
-                } catch(e) { 
-                    console.error('Data parsing error'); 
-                }
+                } catch(e) { console.error('Data parsing error'); }
             } else {
-                // 修正箇所：localStorage.clear() を廃止し、関連キーのみ削除
                 localStorage.removeItem('app_data');
                 localStorage.removeItem('app_day');
                 localStorage.setItem('app_version', APP_VERSION);
@@ -426,8 +400,7 @@
             
             renderUI();
 
-            // 修正箇所：SortableJSのリスト間移動を廃止し、ルート内の順番変更のみに限定
-            const sortableOptions = {
+            new Sortable($('routeList'), {
                 animation: 200,
                 handle: '.drag-handle',
                 ghostClass: 'sortable-ghost',
@@ -435,9 +408,7 @@
                 delay: 150,
                 delayOnTouchOnly: true,
                 onEnd: saveState
-            };
-            
-            new Sortable($('routeList'), sortableOptions);
+            });
         });
     </script>
 </body>
