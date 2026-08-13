@@ -30,25 +30,24 @@
         .hint-text { font-size: 0.7rem; color: var(--light); }
         .batch-btn, .helper-btn, .action-btn-mini, .gps-btn, .add-btn {
             font-family: inherit; font-size: 0.7rem; background: #f0ede6;
-            border: 1px solid var(--faint); padding: 3px 8px; border-radius: 2px; cursor: pointer; color: var(--mid);
+            border: 1px solid var(--faint); padding: 4px 8px; border-radius: 2px; cursor: pointer; color: var(--mid);
         }
         .batch-btn:hover, .helper-btn:hover, .action-btn-mini:hover { background: var(--faint); }
         .origin-setting, .add-user-box {
-            background: var(--paper); border: 1px solid var(--faint); border-radius: 2px; padding: 10px 14px; margin-bottom: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02); display: flex; align-items: center; justify-content: space-between; gap: 8px;
+            background: var(--paper); border: 1px solid var(--faint); border-radius: 2px; padding: 12px 14px; margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 8px;
         }
-        .add-user-box { flex-direction: column; align-items: stretch; }
+        .box-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; }
         .origin-label { font-size: 0.8rem; color: var(--mid); white-space: nowrap; }
         .origin-input-wrapper { display: flex; align-items: center; flex: 1; gap: 6px; }
         .origin-input, .add-input {
             font-family: inherit; font-size: 0.85rem; border: none; border-bottom: 1px solid var(--light);
-            background: transparent; color: var(--deep); padding: 2px 4px; outline: none; width: 100%;
+            background: transparent; color: var(--deep); padding: 4px 6px; outline: none; width: 100%;
         }
-        .add-input { border: 1px solid var(--faint); background: #fff; padding: 6px; border-radius: 2px; }
-        .gps-btn { background: var(--deep); color: var(--paper); border: none; }
-        .add-user-row { display: flex; gap: 8px; }
-        .add-btn { background: var(--mid); color: var(--paper); border: none; padding: 6px 14px; font-size: 0.85rem; }
-        .search-helper { display: flex; gap: 6px; align-items: center; }
+        .add-input { border: 1px solid var(--faint); background: #fff; padding: 6px 8px; border-radius: 2px; }
+        .gps-btn { background: var(--deep); color: var(--paper); border: none; white-space: nowrap; padding: 6px 12px; }
+        .add-btn { background: var(--mid); color: var(--paper); border: none; padding: 6px 16px; font-size: 0.85rem; white-space: nowrap; }
+        .search-helper { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 2px; }
         #userPool {
             min-height: 80px; background: #f0ebe1; border: 1px dashed var(--light); border-radius: 2px; padding: 8px; margin-bottom: 16px;
             display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start;
@@ -64,21 +63,21 @@
             position: relative; z-index: 1; background: var(--paper); border: 1px solid var(--faint); border-radius: 2px;
             padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 6px rgba(0,0,0,0.03); width: 100%;
         }
-        #userPool .route-item { width: auto; flex-grow: 1; min-width: 150px; padding: 8px 10px; }
+        #userPool .route-item { width: auto; flex-grow: 1; min-width: 140px; padding: 8px 10px; }
         #userPool .route-item .user-address, #userPool .route-item .drag-handle { display: none !important; }
         .route-item.sortable-drag { opacity: 0.95; background: #fff; transform: scale(1.02); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
         .route-item.sortable-ghost { opacity: 0.2; background: var(--faint); border: 1px dashed var(--light); }
-        .user-info { display: flex; flex-direction: column; padding-left: 6px; }
-        .user-name { font-size: 0.95rem; font-weight: bold; margin-bottom: 2px; }
-        .user-address { font-size: 0.75rem; color: var(--light); }
-        .card-actions { display: flex; align-items: center; gap: 6px; position: relative; }
+        .user-info { display: flex; flex-direction: column; padding-left: 6px; overflow: hidden; }
+        .user-name { font-size: 0.95rem; font-weight: bold; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-address { font-size: 0.75rem; color: var(--light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-actions { display: flex; align-items: center; gap: 6px; position: relative; flex-shrink: 0; }
         .menu-wrapper { position: relative; display: inline-block; }
         .dropdown-menu {
             display: none; position: absolute; right: 0; top: 100%; background: var(--paper);
             border: 1px solid var(--faint); box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 2px; z-index: 100; min-width: 90px; margin-top: 4px;
         }
         .dropdown-menu.active { display: block; }
-        .dropdown-item { padding: 8px 12px; font-size: 0.75px; cursor: pointer; white-space: nowrap; }
+        .dropdown-item { padding: 8px 12px; font-size: 0.75rem; cursor: pointer; white-space: nowrap; }
         .dropdown-item:hover { background: #f0ede6; }
         .dropdown-item.delete-item { color: var(--red); border-top: 1px solid var(--faint); }
         .dropdown-item.delete-item:hover { background: #fdf2f2; }
@@ -116,22 +115,24 @@
 
     <header>
         <h1>送迎ルート</h1>
-        <p class="subtitle">―― リストから選び、ルートを組む ――</p>
+        <p class="subtitle">―― 控え室より選び、ルートを組む ――</p>
     </header>
 
     <div class="origin-setting">
-        <span class="origin-label">出発地点</span>
-        <div class="origin-input-wrapper">
-            <input type="text" id="originInput" class="origin-input" placeholder="現在地を取得または入力">
-            <button type="button" class="gps-btn" onclick="fetchLocation()">現在地</button>
+        <span class="origin-label">出発地点（起点）</span>
+        <div class="box-row">
+            <div class="origin-input-wrapper">
+                <input type="text" id="originInput" class="origin-input" placeholder="現在地を取得または入力">
+            </div>
+            <button type="button" class="gps-btn" onclick="fetchLocation()">現在地取得</button>
         </div>
     </div>
 
     <div class="add-user-box">
-        <span class="origin-label">利用者を追加（リストへ登録）</span>
-        <div class="add-user-row">
-            <input type="text" id="newName" class="add-input" placeholder="氏名（例：田中 太郎）">
-            <input type="text" id="newAddress" class="add-input" placeholder="住所（例：四日市市安島）">
+        <span class="origin-label">利用者を追加（プールへ登録）</span>
+        <div class="box-row">
+            <input type="text" id="newName" class="add-input" placeholder="氏名（例：田中 太郎）" style="flex: 1;">
+            <input type="text" id="newAddress" class="add-input" placeholder="住所（例：四日市市安島）" style="flex: 1.2;">
             <button type="button" id="addBtn" class="add-btn">登録</button>
         </div>
         <div class="search-helper">
@@ -144,7 +145,7 @@
     </div>
 
     <div class="section-title">
-        <span>利用者リスト</span>
+        <span>利用者プール（控）</span>
         <span class="hint-text">[＋ 追加] で送迎順へ</span>
     </div>
     <div id="userPool"></div>
@@ -152,7 +153,7 @@
     <div class="section-title" style="margin-top: 10px;">
         <span>本日の送迎順</span>
         <div>
-            <button type="button" class="batch-btn" onclick="returnAll()">一括でリストへ戻す</button>
+            <button type="button" class="batch-btn" onclick="returnAll()">一括で控へ戻す</button>
             <span class="hint-text" style="margin-left: 4px;">並び替え</span>
         </div>
     </div>
@@ -341,8 +342,16 @@
             toggleModal(false);
             $('chargeScreen').classList.add('active');
             setTimeout(() => {
-                if (mapUrl) window.open(mapUrl, '_blank');
                 $('chargeScreen').classList.remove('active');
+                if (mapUrl) {
+                    const a = document.createElement('a');
+                    a.href = mapUrl;
+                    a.target = '_blank';
+                    a.rel = 'noopener noreferrer';
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                }
             }, 1200);
         };
     </script>
