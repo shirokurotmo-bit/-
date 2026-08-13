@@ -253,25 +253,30 @@
             align-items: center;
             justify-content: space-between;
             box-shadow: 0 2px 6px rgba(0,0,0,0.03);
-            cursor: grab;
             transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
             -webkit-tap-highlight-color: transparent;
             width: 100%;
         }
 
-        /* プール内のカード */
+        /* プール内のカード固有調整 */
         #userPool .route-item {
             width: auto;
             flex-grow: 1;
-            min-width: 140px;
+            min-width: 150px;
             padding: 8px 10px;
             margin-bottom: 0;
+            cursor: default;
         }
         #userPool .route-item .user-address {
             display: none;
         }
         #userPool .route-item .drag-handle {
-            display: none;
+            display: none !important;
+        }
+
+        /* 送迎順のカード固有調整 */
+        #routeList .route-item {
+            cursor: grab;
         }
 
         .route-item.sortable-drag {
@@ -346,7 +351,6 @@
             letter-spacing: 1px;
             border: 1px solid var(--sumi-faint);
         }
-        #userPool .drag-handle { display: none; }
 
         .action-area {
             width: 100%;
@@ -451,7 +455,7 @@
 
     <div class="section-title">
         <span>利用者プール（控）</span>
-        <span class="hint-text">ドラッグ、または [＋ 追加]</span>
+        <span class="hint-text">[＋ 追加] で送迎順へ</span>
     </div>
     <div id="userPool">
         <div class="route-item" data-address="四日市市智積町">
@@ -462,7 +466,6 @@
             <div class="card-actions">
                 <button type="button" class="action-btn-mini" onclick="moveToRoute(this)">＋ 追加</button>
                 <button type="button" class="action-btn-mini delete-btn" onclick="deleteItem(this)">×</button>
-                <div class="drag-handle">三</div>
             </div>
         </div>
         <div class="route-item" data-address="四日市市日永西">
@@ -473,7 +476,6 @@
             <div class="card-actions">
                 <button type="button" class="action-btn-mini" onclick="moveToRoute(this)">＋ 追加</button>
                 <button type="button" class="action-btn-mini delete-btn" onclick="deleteItem(this)">×</button>
-                <div class="drag-handle">三</div>
             </div>
         </div>
     </div>
@@ -548,10 +550,18 @@
                 delay: 100,
                 delayOnTouchOnly: true,
                 group: 'sharedRoutes',
+                onAdd: function (evt) {
+                    // ゾーン間を移動したときの状態調整
+                    const item = evt.item;
+                    const isPool = (evt.to.id === 'userPool');
+                    updateCardState(item, isPool);
+                    saveAppData();
+                },
                 onEnd: function() {
                     saveAppData();
                 }
             };
+            // プール側は Sortable 自体は有効にするが、ハンドルがないため実質ドラッグ不可・追加ボタン専用にする
             new Sortable(userPool, sharedOptions);
             new Sortable(routeList, sharedOptions);
         }
@@ -565,14 +575,14 @@
         function moveToRoute(btn) {
             const item = btn.closest('.route-item');
             routeList.appendChild(item);
-            updateCardButtons(item, false);
+            updateCardState(item, false);
             saveAppData();
         }
 
         function moveToPool(btn) {
             const item = btn.closest('.route-item');
             userPool.appendChild(item);
-            updateCardButtons(item, true);
+            updateCardState(item, true);
             saveAppData();
         }
 
@@ -582,14 +592,24 @@
             saveAppData();
         }
 
-        function updateCardButtons(item, isPool) {
+        function updateCardState(item, isPool) {
             const btn = item.querySelector('.action-btn-mini:not(.delete-btn)');
+            let handle = item.querySelector('.drag-handle');
+
             if (isPool) {
                 btn.textContent = '＋ 追加';
                 btn.setAttribute('onclick', 'moveToRoute(this)');
+                if (handle) handle.remove();
             } else {
                 btn.textContent = '控へ戻す';
                 btn.setAttribute('onclick', 'moveToPool(this)');
+                if (!handle) {
+                    const actions = item.querySelector('.card-actions');
+                    const newHandle = document.createElement('div');
+                    newHandle.className = 'drag-handle';
+                    newHandle.textContent = '三';
+                    actions.appendChild(newHandle);
+                }
             }
         }
 
@@ -618,7 +638,6 @@
                 <div class="card-actions">
                     <button type="button" class="action-btn-mini" onclick="moveToRoute(this)">＋ 追加</button>
                     <button type="button" class="action-btn-mini delete-btn" onclick="deleteItem(this)">×</button>
-                    <div class="drag-handle">三</div>
                 </div>
             `;
 
