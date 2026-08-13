@@ -267,13 +267,11 @@
             padding: 8px 10px;
             margin-bottom: 0;
         }
-        #userPool .route-item .user-address,
-        #userPool .route-item .drag-handle {
+        #userPool .route-item .user-address {
             display: none;
         }
-        #userPool .route-item .user-name {
-            font-size: 0.85rem;
-            margin-bottom: 0;
+        #userPool .route-item .drag-handle {
+            display: none;
         }
 
         .route-item.sortable-drag {
@@ -316,7 +314,7 @@
             gap: 6px;
         }
 
-        .quick-add-btn {
+        .action-btn-mini {
             background: none;
             border: 1px solid var(--sumi-faint);
             border-radius: 2px;
@@ -326,8 +324,17 @@
             cursor: pointer;
             font-family: inherit;
         }
-        #userPool .quick-add-btn { display: block; }
-        #routeList .quick-add-btn { display: none; }
+        .action-btn-mini:hover {
+            background-color: #f0ede6;
+        }
+
+        .delete-btn {
+            color: var(--accent-red);
+            border-color: #e6cccc;
+        }
+        .delete-btn:hover {
+            background-color: #fdf2f2;
+        }
 
         .drag-handle {
             font-size: 0.9rem;
@@ -417,8 +424,8 @@
     <div id="sumiOverlay"></div>
 
     <header>
-        <h1>送迎ルート</h1>
-        <p class="subtitle">―― 控え室より選び、ルートを組む ――</p>
+        <h1>送迎道筋</h1>
+        <p class="subtitle">―― 控え室より選び、道筋を組む ――</p>
     </header>
 
     <div class="origin-setting">
@@ -427,7 +434,7 @@
     </div>
 
     <div class="add-user-box">
-        <span class="origin-label">利用者を追加（控えへ登録）</span>
+        <span class="origin-label">利用者を追加（プールへ登録）</span>
         <div class="add-user-row">
             <input type="text" id="newNameInput" class="add-input" placeholder="氏名（例：田中 太郎）">
             <input type="text" id="newAddressInput" class="add-input" placeholder="住所（例：四日市市安島）">
@@ -443,19 +450,31 @@
     </div>
 
     <div class="section-title">
-        <span>利用者控</span>
-        <span class="hint-text">ドラッグ、または [＋追加]</span>
+        <span>利用者プール（控）</span>
+        <span class="hint-text">ドラッグ、または [＋ 追加]</span>
     </div>
     <div id="userPool">
         <div class="route-item" data-address="四日市市智積町">
-            <div class="user-info"><span class="user-name">高橋 健一 様</span></div>
-            <button type="button" class="quick-add-btn" onclick="moveToRoute(this)">＋ 追加</button>
-            <div class="drag-handle">三</div>
+            <div class="user-info">
+                <span class="user-name">高橋 健一 様</span>
+                <span class="user-address">四日市市智積町</span>
+            </div>
+            <div class="card-actions">
+                <button type="button" class="action-btn-mini" onclick="moveToRoute(this)">＋ 追加</button>
+                <button type="button" class="action-btn-mini delete-btn" onclick="deleteItem(this)">×</button>
+                <div class="drag-handle">三</div>
+            </div>
         </div>
         <div class="route-item" data-address="四日市市日永西">
-            <div class="user-info"><span class="user-name">渡辺 恵子 様</span></div>
-            <button type="button" class="quick-add-btn" onclick="moveToRoute(this)">＋ 追加</button>
-            <div class="drag-handle">三</div>
+            <div class="user-info">
+                <span class="user-name">渡辺 恵子 様</span>
+                <span class="user-address">四日市市日永西</span>
+            </div>
+            <div class="card-actions">
+                <button type="button" class="action-btn-mini" onclick="moveToRoute(this)">＋ 追加</button>
+                <button type="button" class="action-btn-mini delete-btn" onclick="deleteItem(this)">×</button>
+                <div class="drag-handle">三</div>
+            </div>
         </div>
     </div>
 
@@ -463,14 +482,15 @@
         <span>本日の送迎順</span>
         <span class="hint-text">並び替え・控へ戻す</span>
     </div>
-    <ul id="routeList">
+    <div id="routeList">
         <div class="route-item" data-address="四日市市諏訪町1-5">
             <div class="user-info">
                 <span class="user-name">山田 太郎 様</span>
                 <span class="user-address">四日市市諏訪町</span>
             </div>
             <div class="card-actions">
-                <button type="button" class="quick-add-btn" onclick="moveToPool(this)" style="display:inline-block;">控へ戻す</button>
+                <button type="button" class="action-btn-mini" onclick="moveToPool(this)">控へ戻す</button>
+                <button type="button" class="action-btn-mini delete-btn" onclick="deleteItem(this)">×</button>
                 <div class="drag-handle">三</div>
             </div>
         </div>
@@ -480,16 +500,17 @@
                 <span class="user-address">四日市市西島町</span>
             </div>
             <div class="card-actions">
-                <button type="button" class="quick-add-btn" onclick="moveToPool(this)" style="display:inline-block;">控へ戻す</button>
+                <button type="button" class="action-btn-mini" onclick="moveToPool(this)">控へ戻す</button>
+                <button type="button" class="action-btn-mini delete-btn" onclick="deleteItem(this)">×</button>
                 <div class="drag-handle">三</div>
             </div>
         </div>
-    </ul>
+    </div>
 
     <div class="action-area">
         <button id="generateMapBtn" class="action-btn">
             <svg class="map-icon" viewBox="0 0 576 512"><path d="M408 120g0 56.9L253.6 246c-9.5 7.8-23.5 7.8-33 0L72 176.9V120c0-13.3 10.7-24 24-24h288c13.3 0 24 10.7 24 24zm160 80.9L416 339v93c0 17.8-19.2 29.1-34.7 20.5l-104.5-59L194.5 452.5C179.2 461.1 160 449.8 160 432v-93L8 200.9c-14.7-8.6-8.3-30.9 8.9-30.9h155.1l48.8-40c10.9-8.9 27.1-8.9 38 0l48.8 40h155.1c17.2 0 23.6 22.3 8.9 30.9z"/></svg>
-            案内開始
+            地図の道筋を開く
         </button>
     </div>
 
@@ -544,44 +565,32 @@
         function moveToRoute(btn) {
             const item = btn.closest('.route-item');
             routeList.appendChild(item);
-            updateCardState(item, false);
+            updateCardButtons(item, false);
             saveAppData();
         }
 
         function moveToPool(btn) {
             const item = btn.closest('.route-item');
             userPool.appendChild(item);
-            updateCardState(item, true);
+            updateCardButtons(item, true);
             saveAppData();
         }
 
-        function updateCardState(item, isPool) {
-            const actionContainer = item.querySelector('.card-actions') || createActionContainer(item);
-            const btn = actionContainer.querySelector('.quick-add-btn');
-            
+        function deleteItem(btn) {
+            const item = btn.closest('.route-item');
+            item.remove();
+            saveAppData();
+        }
+
+        function updateCardButtons(item, isPool) {
+            const btn = item.querySelector('.action-btn-mini:not(.delete-btn)');
             if (isPool) {
                 btn.textContent = '＋ 追加';
                 btn.setAttribute('onclick', 'moveToRoute(this)');
-                item.querySelector('.user-address')?.remove();
             } else {
                 btn.textContent = '控へ戻す';
                 btn.setAttribute('onclick', 'moveToPool(this)');
-                if (!item.querySelector('.user-address')) {
-                    const info = item.querySelector('.user-info');
-                    const addrSpan = document.createElement('span');
-                    addrSpan.className = 'user-address';
-                    addrSpan.textContent = item.getAttribute('data-address');
-                    info.appendChild(addrSpan);
-                }
             }
-        }
-
-        function createActionContainer(item) {
-            const div = document.createElement('div');
-            div.className = 'card-actions';
-            div.innerHTML = `<button type="button" class="quick-add-btn"></button><div class="drag-handle">三</div>`;
-            item.appendChild(div);
-            return div;
         }
 
         document.getElementById('addUserBtn').addEventListener('click', () => {
@@ -604,10 +613,12 @@
             newItem.innerHTML = `
                 <div class="user-info">
                     <span class="user-name">${name} 様</span>
+                    <span class="user-address">${fullAddress}</span>
                 </div>
                 <div class="card-actions">
-                    <button type="button" class="quick-add-btn" onclick="moveToRoute(this)">＋ 追加</button>
-                    <div class="drag-handle" style="display:none;">三</div>
+                    <button type="button" class="action-btn-mini" onclick="moveToRoute(this)">＋ 追加</button>
+                    <button type="button" class="action-btn-mini delete-btn" onclick="deleteItem(this)">×</button>
+                    <div class="drag-handle">三</div>
                 </div>
             `;
 
