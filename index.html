@@ -1,1043 +1,1440 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>送迎ルート管理</title>
-
-    <!-- アプリアイコン -->
-    <link rel="icon" type="image/png" href="名称未設定のデザイン.png">
-    <link rel="apple-touch-icon" href="名称未設定のデザイン.png">
-
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="送迎ルート管理">
-
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-
-    <style>
-        :root {
-            --bg-color: #090d16;
-            --surface-color: rgba(255, 255, 255, 0.03);
-            --surface-solid: #131b2e;
-            --primary-color: #38bdf8;
-            --accent-glow: rgba(56, 189, 248, 0.25);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: rgba(255, 255, 255, 0.08);
-            --danger-color: #fb7185;
-            --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            --radius-md: 14px;
-            --radius-lg: 20px;
-            --radius-full: 9999px;
-            --nav-height: 72px;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: linear-gradient(135deg, #090d16 0%, #1a233a 100%);
-            color: var(--text-main);
-            min-height: 100vh;
-            -webkit-user-select: none;
-            user-select: none;
-            padding-bottom: calc(var(--nav-height) + 24px);
-        }
-
-        .app-container {
-            max-width: 480px;
-            margin: 0 auto;
-            padding: 20px 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        header {
-            padding: 4px 0 8px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .app-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            object-fit: cover;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-        }
-
-        h1 {
-            font-size: 1.4rem;
-            font-weight: 700;
-            letter-spacing: -0.01em;
-            background: linear-gradient(90deg, #fff, #94a3b8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .card {
-            background: var(--surface-solid);
-            border-radius: var(--radius-lg);
-            padding: 20px;
-            box-shadow: var(--shadow-glass);
-            border: 1px solid var(--border-color);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 14px;
-        }
-
-        .section-title {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .input-group {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-
-        input[type="text"] {
-            flex: 1;
-            appearance: none;
-            border: 1px solid var(--border-color);
-            background-color: rgba(0, 0, 0, 0.2);
-            border-radius: var(--radius-md);
-            padding: 12px 14px;
-            font-size: 0.95rem;
-            color: var(--text-main);
-            width: 100%;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        input[type="text"]:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            background-color: rgba(0, 0, 0, 0.4);
-            box-shadow: 0 0 0 4px var(--accent-glow);
-        }
-
-        input[type="text"]::placeholder {
-            color: #475569;
-        }
-
-        .day-chips {
-            display: flex;
-            gap: 6px;
-            margin: 14px 0;
-            justify-content: space-between;
-        }
-
-        .day-chip {
-            flex: 1;
-            position: relative;
-            cursor: pointer;
-        }
-
-        .day-chip input {
-            position: absolute;
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .day-chip span {
-            display: block;
-            text-align: center;
-            padding: 10px 0;
-            font-size: 0.8rem;
-            font-weight: 700;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            color: var(--text-muted);
-            background: rgba(255, 255, 255, 0.02);
-            transition: all 0.2s ease;
-        }
-
-        .day-chip input:checked + span {
-            background: var(--primary-color);
-            color: #090d16;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 12px var(--accent-glow);
-        }
-
-        button {
-            border: none;
-            font-family: inherit;
-            cursor: pointer;
-            border-radius: var(--radius-md);
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.1s ease, filter 0.2s ease;
-        }
-
-        button:active {
-            transform: scale(0.96);
-            filter: brightness(0.9);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #38bdf8, #0284c7);
-            color: #090d16;
-            padding: 14px 16px;
-            width: 100%;
-            font-size: 0.95rem;
-            box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.06);
-            color: var(--text-main);
-            padding: 10px 14px;
-            font-size: 0.85rem;
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-text {
-            background: transparent;
-            color: var(--primary-color);
-            padding: 4px 8px;
-            font-size: 0.85rem;
-        }
-
-        .list-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            min-height: 80px;
-        }
-
-        #userPool {
-            flex-direction: row;
-            flex-wrap: wrap;
-            padding: 14px;
-            background: rgba(0, 0, 0, 0.25);
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border-color);
-        }
-
-        .route-item {
-            background: var(--surface-solid);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 14px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        #userPool .route-item {
-            width: auto;
-            flex: 1 1 130px;
-            padding: 10px 12px;
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        #userPool .route-item .address,
-        #userPool .route-item .drag-handle {
-            display: none !important;
-        }
-
-        .route-item.sortable-drag {
-            background: #1e293b;
-            transform: scale(1.03);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
-            z-index: 100;
-            border-color: var(--primary-color);
-        }
-
-        .route-item.sortable-ghost {
-            opacity: 0.2;
-            background-color: transparent;
-            border: 2px dashed var(--primary-color);
-        }
-
-        .item-info {
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            flex: 1;
-            padding-right: 8px;
-        }
-
-        .item-name {
-            font-size: 0.95rem;
-            font-weight: 700;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin-bottom: 2px;
-        }
-
-        .item-address {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .item-actions {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: var(--radius-md);
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-icon:hover {
-            color: var(--text-main);
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .drag-handle {
-            color: var(--text-muted);
-            padding: 6px;
-            cursor: grab;
-            display: flex;
-        }
-
-        .drag-handle svg {
-            width: 20px;
-            height: 20px;
-            fill: currentColor;
-        }
-
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: var(--nav-height);
-            background: rgba(9, 13, 22, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding: 0 8px;
-            padding-bottom: env(safe-area-inset-bottom);
-            z-index: 50;
-        }
-
-        .nav-item {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            background: transparent;
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            font-weight: 700;
-            border-radius: 0;
-            transition: color 0.2s;
-        }
-
-        .nav-item.active {
-            color: var(--primary-color);
-        }
-
-        .nav-indicator {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background-color: transparent;
-            margin-top: 4px;
-            box-shadow: 0 0 8px var(--primary-color);
-        }
-
-        .nav-item.active .nav-indicator {
-            background-color: var(--primary-color);
-        }
-
-        .fab {
-            position: fixed;
-            right: 20px;
-            bottom: calc(var(--nav-height) + 20px);
-            width: 64px;
-            height: 64px;
-            border-radius: var(--radius-full);
-            background: linear-gradient(135deg, #38bdf8, #0284c7);
-            color: #090d16;
-            box-shadow: 0 8px 24px rgba(56, 189, 248, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 40;
-            animation: pulse-glow 3s infinite;
-        }
-
-        @keyframes pulse-glow {
-            0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.4); }
-            70% { box-shadow: 0 0 0 14px rgba(56, 189, 248, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
-        }
-
-        .fab svg {
-            width: 26px;
-            height: 26px;
-            fill: #090d16;
-        }
-
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(5, 8, 15, 0.7);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease;
-            z-index: 1000;
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .modal-content {
-            background: var(--surface-solid);
-            width: 90%;
-            max-width: 360px;
-            border-radius: var(--radius-lg);
-            padding: 24px;
-            box-shadow: var(--shadow-glass);
-            border: 1px solid var(--border-color);
-            transform: translateY(12px);
-            transition: transform 0.2s ease;
-        }
-
-        .modal-overlay.active .modal-content {
-            transform: translateY(0);
-        }
-
-        .modal-title {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            color: #fff;
-        }
-
-        .modal-body {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            line-height: 1.5;
-            margin-bottom: 24px;
-        }
-
-        .modal-data-box {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 12px;
-            border-radius: var(--radius-md);
-            margin-top: 12px;
-            color: var(--text-main);
-            font-weight: 500;
-            word-break: break-all;
-            border: 1px solid var(--border-color);
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 12px;
-        }
-
-        .modal-btn {
-            flex: 1;
-            padding: 12px;
-            font-size: 0.95rem;
-        }
-
-        @media (max-width: 380px) {
-            .app-container {
-                padding-left: 12px;
-                padding-right: 12px;
-            }
-
-            .card {
-                padding: 16px;
-            }
-
-            .input-group {
-                gap: 6px;
-            }
-
-            .day-chip span {
-                padding: 9px 0;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<title>送迎ルート管理</title>
+
+<link rel="apple-touch-icon" id="appleIcon">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="送迎ルート管理">
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+<style>
+:root{
+    --bg:#090d16;
+    --card:#131b2e;
+    --primary:#38bdf8;
+    --primary-dark:#0284c7;
+    --text:#f8fafc;
+    --muted:#94a3b8;
+    --border:rgba(255,255,255,.08);
+    --danger:#fb7185;
+    --nav:72px;
+    --radius:14px;
+    --radius-lg:20px;
+}
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    -webkit-tap-highlight-color:transparent;
+}
+
+body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:linear-gradient(135deg,#090d16,#1a233a);
+    color:var(--text);
+    min-height:100vh;
+    padding-bottom:calc(var(--nav) + 24px);
+    user-select:none;
+}
+
+.app{
+    max-width:480px;
+    margin:auto;
+    padding:20px 16px;
+}
+
+header{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:4px 0 20px;
+}
+
+.app-icon{
+    width:46px;
+    height:46px;
+    border-radius:13px;
+    object-fit:cover;
+    border:1px solid var(--border);
+    box-shadow:0 5px 16px rgba(0,0,0,.5);
+}
+
+h1{
+    font-size:1.4rem;
+    font-weight:700;
+}
+
+.card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    padding:20px;
+    margin-bottom:20px;
+    box-shadow:0 8px 32px rgba(0,0,0,.35);
+}
+
+.section-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:14px;
+}
+
+.section-title{
+    color:var(--muted);
+    font-size:.85rem;
+    font-weight:700;
+    letter-spacing:.04em;
+}
+
+.input-group{
+    display:flex;
+    gap:8px;
+    margin-bottom:10px;
+}
+
+input[type=text]{
+    min-width:0;
+    flex:1;
+    padding:12px 14px;
+    border-radius:var(--radius);
+    border:1px solid var(--border);
+    background:rgba(0,0,0,.22);
+    color:var(--text);
+    font-size:.95rem;
+}
+
+input[type=text]:focus{
+    outline:none;
+    border-color:var(--primary);
+    box-shadow:0 0 0 4px rgba(56,189,248,.15);
+}
+
+input::placeholder{
+    color:#475569;
+}
+
+button{
+    border:0;
+    font-family:inherit;
+    cursor:pointer;
+    border-radius:var(--radius);
+    font-weight:600;
+}
+
+button:active{
+    transform:scale(.96);
+}
+
+.btn-primary{
+    width:100%;
+    padding:14px;
+    color:#06111b;
+    background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+    box-shadow:0 5px 15px rgba(56,189,248,.25);
+}
+
+.btn-secondary{
+    padding:10px 14px;
+    color:var(--text);
+    background:rgba(255,255,255,.06);
+    border:1px solid var(--border);
+}
+
+.btn-text{
+    padding:4px 8px;
+    color:var(--primary);
+    background:transparent;
+}
+
+.day-list{
+    display:flex;
+    gap:6px;
+    margin:14px 0;
+}
+
+.day{
+    flex:1;
+}
+
+.day input{
+    display:none;
+}
+
+.day span{
+    display:block;
+    padding:10px 0;
+    text-align:center;
+    color:var(--muted);
+    background:rgba(255,255,255,.03);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    font-size:.8rem;
+    font-weight:700;
+}
+
+.day input:checked+span{
+    background:var(--primary);
+    border-color:var(--primary);
+    color:#06111b;
+}
+
+.list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    min-height:50px;
+}
+
+#userPool{
+    flex-direction:row;
+    flex-wrap:wrap;
+    padding:14px;
+    background:rgba(0,0,0,.22);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+}
+
+.item{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 16px;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    box-shadow:0 3px 10px rgba(0,0,0,.2);
+}
+
+#userPool .item{
+    width:auto;
+    flex:1 1 130px;
+    padding:10px 12px;
+}
+
+#userPool .address,
+#userPool .drag{
+    display:none;
+}
+
+.info{
+    min-width:0;
+    flex:1;
+    padding-right:8px;
+}
+
+.name{
+    display:block;
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+    font-size:.95rem;
+    font-weight:700;
+}
+
+.address{
+    display:block;
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+    color:var(--muted);
+    font-size:.75rem;
+    margin-top:2px;
+}
+
+.actions{
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
+
+.icon-btn{
+    width:36px;
+    height:36px;
+    color:var(--muted);
+    background:rgba(255,255,255,.05);
+    border:1px solid var(--border);
+}
+
+.drag{
+    display:flex;
+    padding:6px;
+    color:var(--muted);
+    cursor:grab;
+}
+
+.drag svg{
+    width:20px;
+    height:20px;
+    fill:currentColor;
+}
+
+.sortable-ghost{
+    opacity:.2;
+    border:2px dashed var(--primary);
+}
+
+.sortable-drag{
+    transform:scale(1.03);
+    border-color:var(--primary);
+}
+
+.bottom-nav{
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0;
+    height:var(--nav);
+    display:flex;
+    align-items:center;
+    padding:0 8px env(safe-area-inset-bottom);
+    background:rgba(9,13,22,.88);
+    backdrop-filter:blur(20px);
+    border-top:1px solid var(--border);
+    z-index:50;
+}
+
+.nav{
+    flex:1;
+    height:100%;
+    color:var(--muted);
+    background:transparent;
+    border-radius:0;
+    font-size:.8rem;
+}
+
+.nav.active{
+    color:var(--primary);
+}
+
+.dot{
+    width:6px;
+    height:6px;
+    margin:5px auto 0;
+    border-radius:50%;
+    background:transparent;
+}
+
+.nav.active .dot{
+    background:var(--primary);
+    box-shadow:0 0 8px var(--primary);
+}
+
+.fab{
+    position:fixed;
+    right:20px;
+    bottom:calc(var(--nav) + 20px);
+    width:64px;
+    height:64px;
+    border-radius:50%;
+    background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+    box-shadow:0 8px 24px rgba(56,189,248,.4);
+    z-index:40;
+}
+
+.fab svg{
+    width:27px;
+    height:27px;
+    fill:#06111b;
+}
+
+.modal{
+    position:fixed;
+    inset:0;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:rgba(0,0,0,.7);
+    backdrop-filter:blur(8px);
+    opacity:0;
+    pointer-events:none;
+    transition:.2s;
+    z-index:1000;
+}
+
+.modal.active{
+    opacity:1;
+    pointer-events:auto;
+}
+
+.modal-box{
+    width:90%;
+    max-width:360px;
+    padding:24px;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    box-shadow:0 15px 50px rgba(0,0,0,.5);
+}
+
+.modal-title{
+    font-size:1.2rem;
+    font-weight:700;
+    margin-bottom:10px;
+}
+
+.modal-body{
+    color:var(--muted);
+    line-height:1.5;
+    font-size:.9rem;
+    margin-bottom:20px;
+}
+
+.modal-data{
+    margin-top:12px;
+    padding:12px;
+    border-radius:var(--radius);
+    background:rgba(0,0,0,.3);
+    color:var(--text);
+    border:1px solid var(--border);
+    word-break:break-all;
+}
+
+.modal-actions{
+    display:flex;
+    gap:10px;
+}
+
+.modal-actions button{
+    flex:1;
+    padding:12px;
+}
+
+@media(max-width:380px){
+    .app{
+        padding-left:12px;
+        padding-right:12px;
+    }
+
+    .card{
+        padding:16px;
+    }
+}
+</style>
 </head>
 
 <body>
-    <div class="app-container">
-        <header>
-            <div class="header-left">
-                <img src="名称未設定のデザイン.png" alt="送迎ルート管理アイコン" class="app-icon" id="headerIcon">
-                <h1>ルート管理</h1>
-            </div>
-        </header>
 
-        <!-- マスター登録 -->
-        <div class="card">
-            <div class="section-header">
-                <span class="section-title">起点と利用者マスター登録</span>
-            </div>
+<div class="app">
 
-            <div class="input-group" style="margin-bottom: 14px;">
-                <input type="text" id="originInput" placeholder="本日の出発地点（現在地など）">
-                <button type="button" class="btn-secondary" onclick="fetchLocation()">GPS</button>
-            </div>
+<header>
+    <img id="appIcon" class="app-icon" alt="送迎ルート管理">
+    <h1>ルート管理</h1>
+</header>
 
-            <div style="border-top: 1px solid var(--border-color); padding-top: 14px;">
-                <div class="input-group">
-                    <input type="text" id="newName" placeholder="氏名" style="flex: 1;">
-                    <input type="text" id="newAddress" placeholder="住所" style="flex: 1.5;">
-                </div>
+<div class="card">
 
-                <div class="day-chips">
-                    <label class="day-chip"><input type="checkbox" name="regDay" value="mon"><span>月</span></label>
-                    <label class="day-chip"><input type="checkbox" name="regDay" value="tue"><span>火</span></label>
-                    <label class="day-chip"><input type="checkbox" name="regDay" value="wed"><span>水</span></label>
-                    <label class="day-chip"><input type="checkbox" name="regDay" value="thu"><span>木</span></label>
-                    <label class="day-chip"><input type="checkbox" name="regDay" value="fri"><span>金</span></label>
-                    <label class="day-chip"><input type="checkbox" name="regDay" value="sat"><span>土</span></label>
-                </div>
-
-                <button type="button" class="btn-primary" id="addBtn">マスターに登録</button>
-            </div>
-        </div>
-
-        <!-- 待機リスト -->
-        <div>
-            <div class="section-header">
-                <span class="section-title">本日の利用者（待機）</span>
-            </div>
-            <div id="userPool" class="list-container"></div>
-        </div>
-
-        <!-- 送迎ルート -->
-        <div>
-            <div class="section-header">
-                <span class="section-title">送迎ルート順序</span>
-                <button type="button" class="btn-text" onclick="returnAll()">すべて待機に戻す</button>
-            </div>
-            <div id="routeList" class="list-container"></div>
-        </div>
+    <div class="section-header">
+        <span class="section-title">起点と利用者登録</span>
     </div>
 
-    <!-- Googleマップ -->
-    <button class="fab" id="mapBtn" aria-label="マップを開く">
-        <svg viewBox="0 0 576 512">
-            <path d="M408 120c0-13.3-10.7-24-24-24H96c-13.3 0-24 10.7-24 24v296c0 13.3 10.7 24 24 24h288c13.3 0 24-10.7 24-24V120zm160 80.9L416 339v93c0 17.8-19.2 29.1-34.7 20.5l-104.5-59L194.5 452.5C179.2 461.1 160 449.8 160 432v-93L8 200.9c-14.7-8.6-8.3-30.9 8.9-30.9h155.1l48.8-40c10.9-8.9 27.1-8.9 38 0l48.8 40h155.1c17.2 0 23.6 22.3 8.9 30.9z"/>
-        </svg>
-    </button>
-
-    <!-- 曜日ナビ -->
-    <nav class="bottom-nav">
-        <button class="nav-item active" data-day="mon" onclick="switchDay('mon')">月<div class="nav-indicator"></div></button>
-        <button class="nav-item" data-day="tue" onclick="switchDay('tue')">火<div class="nav-indicator"></div></button>
-        <button class="nav-item" data-day="wed" onclick="switchDay('wed')">水<div class="nav-indicator"></div></button>
-        <button class="nav-item" data-day="thu" onclick="switchDay('thu')">木<div class="nav-indicator"></div></button>
-        <button class="nav-item" data-day="fri" onclick="switchDay('fri')">金<div class="nav-indicator"></div></button>
-        <button class="nav-item" data-day="sat" onclick="switchDay('sat')">土<div class="nav-indicator"></div></button>
-    </nav>
-
-    <!-- マップ確認モーダル -->
-    <div class="modal-overlay" id="confirmModal">
-        <div class="modal-content">
-            <div class="modal-title">マップを起動します</div>
-            <div class="modal-body">
-                以下の順番で経路案内を作成します。
-                <div class="modal-data-box" id="modalFlowText"></div>
-            </div>
-            <div class="modal-actions">
-                <button type="button" class="btn-secondary modal-btn" onclick="toggleModal(false)">キャンセル</button>
-                <button type="button" class="btn-primary modal-btn" id="executeMapBtn">ナビ開始</button>
-            </div>
-        </div>
+    <div class="input-group">
+        <input id="originInput" type="text" placeholder="本日の出発地点">
+        <button class="btn-secondary" onclick="fetchLocation()">GPS</button>
     </div>
 
-    <script>
-        const APP_VERSION = 'v18_lux_dark';
-        const $ = id => document.getElementById(id);
-        const VALID_DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+    <div style="border-top:1px solid var(--border);padding-top:14px">
 
-        let currentDay = 'mon';
+        <div class="input-group">
+            <input id="newName" type="text" placeholder="氏名">
+            <input id="newAddress" type="text" placeholder="住所">
+        </div>
 
-        let store = {
-            users: [],
-            mon: { origin: '', route: [] },
-            tue: { origin: '', route: [] },
-            wed: { origin: '', route: [] },
-            thu: { origin: '', route: [] },
-            fri: { origin: '', route: [] },
-            sat: { origin: '', route: [] }
-        };
+        <div class="day-list">
+            <label class="day">
+                <input type="checkbox" name="regDay" value="mon">
+                <span>月</span>
+            </label>
 
-        /*
-         * 保存データが壊れていた場合でもアプリ全体が止まらないように
-         * 最低限のデータ構造を補正する。
-         */
-        const normalizeStore = data => {
-            const base = {
-                users: [],
-                mon: { origin: '', route: [] },
-                tue: { origin: '', route: [] },
-                wed: { origin: '', route: [] },
-                thu: { origin: '', route: [] },
-                fri: { origin: '', route: [] },
-                sat: { origin: '', route: [] }
-            };
+            <label class="day">
+                <input type="checkbox" name="regDay" value="tue">
+                <span>火</span>
+            </label>
 
-            if (!data || typeof data !== 'object') return base;
+            <label class="day">
+                <input type="checkbox" name="regDay" value="wed">
+                <span>水</span>
+            </label>
 
-            base.users = Array.isArray(data.users)
-                ? data.users.filter(u => u && u.id && typeof u.name === 'string' && typeof u.address === 'string')
-                    .map(u => ({
-                        id: String(u.id),
-                        name: u.name,
-                        address: u.address,
-                        days: Array.isArray(u.days)
-                            ? u.days.filter(day => VALID_DAYS.includes(day))
-                            : []
-                    }))
+            <label class="day">
+                <input type="checkbox" name="regDay" value="thu">
+                <span>木</span>
+            </label>
+
+            <label class="day">
+                <input type="checkbox" name="regDay" value="fri">
+                <span>金</span>
+            </label>
+
+            <label class="day">
+                <input type="checkbox" name="regDay" value="sat">
+                <span>土</span>
+            </label>
+        </div>
+
+        <button id="addBtn" class="btn-primary">
+            利用者を登録
+        </button>
+
+    </div>
+</div>
+
+<div>
+    <div class="section-header">
+        <span class="section-title">本日の利用者</span>
+    </div>
+
+    <div id="userPool" class="list"></div>
+</div>
+
+<div style="margin-top:20px">
+
+    <div class="section-header">
+        <span class="section-title">送迎ルート</span>
+        <button class="btn-text" onclick="returnAll()">すべて待機に戻す</button>
+    </div>
+
+    <div id="routeList" class="list"></div>
+
+</div>
+
+</div>
+
+<button id="mapBtn" class="fab" aria-label="Googleマップ">
+<svg viewBox="0 0 576 512">
+<path d="M408 120c0-13.3-10.7-24-24-24H96c-13.3 0-24 10.7-24 24v296c0 13.3 10.7 24 24 24h288c13.3 0 24-10.7 24-24V120zm160 80.9L416 339v93c0 17.8-19.2 29.1-34.7 20.5l-104.5-59L194.5 452.5C179.2 461.1 160 449.8 160 432v-93L8 200.9c-14.7-8.6-8.3-30.9 8.9-30.9h155.1l48.8-40c10.9-8.9 27.1-8.9 38 0l48.8 40h155.1c17.2 0 23.6 22.3 8.9 30.9z"/>
+</svg>
+</button>
+
+<nav class="bottom-nav">
+
+<button class="nav active" data-day="mon" onclick="switchDay('mon')">
+月<div class="dot"></div>
+</button>
+
+<button class="nav" data-day="tue" onclick="switchDay('tue')">
+火<div class="dot"></div>
+</button>
+
+<button class="nav" data-day="wed" onclick="switchDay('wed')">
+水<div class="dot"></div>
+</button>
+
+<button class="nav" data-day="thu" onclick="switchDay('thu')">
+木<div class="dot"></div>
+</button>
+
+<button class="nav" data-day="fri" onclick="switchDay('fri')">
+金<div class="dot"></div>
+</button>
+
+<button class="nav" data-day="sat" onclick="switchDay('sat')">
+土<div class="dot"></div>
+</button>
+
+</nav>
+
+<div id="modal" class="modal">
+
+<div class="modal-box">
+
+<div class="modal-title">
+Googleマップを起動
+</div>
+
+<div class="modal-body">
+
+以下の順番で経路案内を作成します。
+
+<div id="modalFlow" class="modal-data"></div>
+
+</div>
+
+<div class="modal-actions">
+
+<button class="btn-secondary" onclick="toggleModal(false)">
+キャンセル
+</button>
+
+<button id="executeMap" class="btn-primary">
+ナビ開始
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+/* =========================================================
+   コアラアイコン
+   画像をHTML内部に埋め込むので外部画像ファイル不要
+   ========================================================= */
+
+const KOALA_ICON =
+"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////2wBDAf//////////////////////////////////////////////////////////////////////////////////////wAARCAAoACgDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIQAxAAAAF//8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABBQJ//8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAgBAwEBPwF//8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAgBAgEBPwF//8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQAGPwJ//8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPyF//9k=";
+
+/*
+   上の画像データは軽量化したアイコン用画像。
+   実際のアプリではここにコアラ画像のBase64データを入れる。
+*/
+
+document.getElementById("appIcon").src = KOALA_ICON;
+document.getElementById("appleIcon").href = KOALA_ICON;
+
+
+/* =========================================================
+   基本設定
+   ========================================================= */
+
+const APP_VERSION = "v18_koala";
+const DAYS = ["mon","tue","wed","thu","fri","sat"];
+
+const $ = id => document.getElementById(id);
+
+let currentDay = "mon";
+
+let store = {
+    users: [],
+
+    mon:{origin:"",route:[]},
+    tue:{origin:"",route:[]},
+    wed:{origin:"",route:[]},
+    thu:{origin:"",route:[]},
+    fri:{origin:"",route:[]},
+    sat:{origin:"",route:[]}
+};
+
+
+/* =========================================================
+   ID生成
+   ========================================================= */
+
+function generateId(){
+
+    if(window.crypto && crypto.randomUUID){
+        return crypto.randomUUID();
+    }
+
+    return Math.random().toString(36).slice(2) +
+           Date.now().toString(36);
+}
+
+
+/* =========================================================
+   HTMLエスケープ
+   ========================================================= */
+
+function escapeHTML(value){
+
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+    }[char]));
+
+}
+
+
+/* =========================================================
+   保存
+   ========================================================= */
+
+function saveState(){
+
+    store[currentDay].origin =
+        $("originInput").value;
+
+    store[currentDay].route =
+        [...document.querySelectorAll("#routeList .item")]
+        .map(item => item.dataset.id);
+
+    localStorage.setItem(
+        "app_version",
+        APP_VERSION
+    );
+
+    localStorage.setItem(
+        "app_data",
+        JSON.stringify(store)
+    );
+
+    localStorage.setItem(
+        "app_day",
+        currentDay
+    );
+}
+
+
+/* =========================================================
+   データ補正
+   ========================================================= */
+
+function normalizeStore(data){
+
+    const result = {
+        users:[],
+        mon:{origin:"",route:[]},
+        tue:{origin:"",route:[]},
+        wed:{origin:"",route:[]},
+        thu:{origin:"",route:[]},
+        fri:{origin:"",route:[]},
+        sat:{origin:"",route:[]}
+    };
+
+    if(!data || typeof data !== "object"){
+        return result;
+    }
+
+    if(Array.isArray(data.users)){
+
+        result.users =
+            data.users
+            .filter(user =>
+                user &&
+                user.id &&
+                typeof user.name === "string" &&
+                typeof user.address === "string"
+            )
+            .map(user => ({
+                id:String(user.id),
+                name:user.name,
+                address:user.address,
+                days:Array.isArray(user.days)
+                    ? user.days.filter(day => DAYS.includes(day))
+                    : []
+            }));
+    }
+
+    DAYS.forEach(day => {
+
+        if(data[day]){
+
+            result[day].origin =
+                typeof data[day].origin === "string"
+                ? data[day].origin
+                : "";
+
+            result[day].route =
+                Array.isArray(data[day].route)
+                ? data[day].route
+                    .map(String)
+                    .filter(id =>
+                        result.users.some(user => user.id === id)
+                    )
                 : [];
+        }
 
-            VALID_DAYS.forEach(day => {
-                if (data[day] && typeof data[day] === 'object') {
-                    base[day].origin = typeof data[day].origin === 'string' ? data[day].origin : '';
-                    base[day].route = Array.isArray(data[day].route)
-                        ? data[day].route.map(String).filter(id => base.users.some(u => u.id === id))
-                        : [];
-                }
-            });
+    });
 
-            return base;
-        };
+    return result;
+}
 
-        const generateUUID = () => {
-            if (window.crypto && typeof crypto.randomUUID === 'function') {
-                return crypto.randomUUID();
-            }
-            return Math.random().toString(36).substring(2) + Date.now().toString(36);
-        };
 
-        const extractRouteIds = () =>
-            Array.from($('routeList').querySelectorAll('.route-item'))
-                .map(item => item.dataset.id);
+/* =========================================================
+   UI描画
+   ========================================================= */
 
-        const saveState = () => {
-            if (!store[currentDay]) return;
+function renderUI(){
 
-            store[currentDay].origin = $('originInput').value;
-            store[currentDay].route = extractRouteIds();
+    document.querySelectorAll(".nav").forEach(button => {
 
-            localStorage.setItem('app_version', APP_VERSION);
-            localStorage.setItem('app_data', JSON.stringify(store));
-            localStorage.setItem('app_day', currentDay);
-        };
+        button.classList.toggle(
+            "active",
+            button.dataset.day === currentDay
+        );
 
-        const renderUI = () => {
-            document.querySelectorAll('.nav-item').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.day === currentDay);
-            });
+    });
 
-            /*
-             * 新規登録時の初期値として現在曜日を選択。
-             * 既存の選択状態を毎回リセットするのは意図した動作。
-             */
-            document.querySelectorAll('input[name="regDay"]').forEach(cb => {
-                cb.checked = (cb.value === currentDay);
-            });
+    $("originInput").value =
+        store[currentDay].origin;
 
-            const dayData = store[currentDay];
+    $("userPool").innerHTML = "";
+    $("routeList").innerHTML = "";
 
-            $('originInput').value = dayData.origin;
-            $('userPool').innerHTML = '';
-            $('routeList').innerHTML = '';
+    document.querySelectorAll(
+        'input[name="regDay"]'
+    ).forEach(check => {
 
-            const poolUsers = store.users.filter(
-                user => user.days.includes(currentDay) && !dayData.route.includes(user.id)
+        check.checked =
+            check.value === currentDay;
+
+    });
+
+
+    const routeIds =
+        store[currentDay].route;
+
+
+    const poolUsers =
+        store.users.filter(user =>
+            user.days.includes(currentDay) &&
+            !routeIds.includes(user.id)
+        );
+
+
+    poolUsers.forEach(user => {
+
+        $("userPool").appendChild(
+            createItem(user,true)
+        );
+
+    });
+
+
+    routeIds.forEach(id => {
+
+        const user =
+            store.users.find(
+                user => user.id === id
             );
 
-            poolUsers.forEach(user => {
-                $('userPool').appendChild(createItemElement(user, true));
-            });
+        if(user){
 
-            const routeUsers = dayData.route
-                .map(id => store.users.find(user => user.id === id))
-                .filter(Boolean);
-
-            routeUsers.forEach(user => {
-                $('routeList').appendChild(createItemElement(user, false));
-            });
-        };
-
-        const switchDay = day => {
-            if (!VALID_DAYS.includes(day) || day === currentDay) return;
-
-            saveState();
-            currentDay = day;
-            renderUI();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
-
-        const createItemElement = (user, isPool) => {
-            const el = document.createElement('div');
-
-            el.className = 'route-item';
-            el.dataset.id = user.id;
-            el.dataset.name = user.name;
-            el.dataset.address = user.address;
-
-            const iconAdd = `
-                <svg viewBox="0 0 24 24" width="18" height="18"
-                     stroke="currentColor" stroke-width="2.5" fill="none">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>`;
-
-            const iconRemove = `
-                <svg viewBox="0 0 24 24" width="18" height="18"
-                     stroke="currentColor" stroke-width="2.5" fill="none">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>`;
-
-            const iconTrash = `
-                <svg viewBox="0 0 24 24" width="16" height="16"
-                     stroke="var(--danger-color)" stroke-width="2" fill="none">
-                    <polyline points="3 6 5 6 21 6"></polyline>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                </svg>`;
-
-            const iconDrag = `
-                <svg viewBox="0 0 24 24">
-                    <path d="M3 15h18v-2H3v2zm0 4h18v-2H3v2zm0-8h18V9H3v2zm0-6v2h18V5H3z"/>
-                </svg>`;
-
-            el.innerHTML = `
-                <div class="item-info">
-                    <span class="item-name">${escapeHTML(user.name)}</span>
-                    <span class="item-address address">${escapeHTML(user.address)}</span>
-                </div>
-
-                <div class="item-actions">
-                    <button type="button" class="btn-icon"
-                            onclick="toggleState(this, ${isPool})"
-                            aria-label="${isPool ? 'ルートへ追加' : '待機へ戻す'}">
-                        ${isPool ? iconAdd : iconRemove}
-                    </button>
-
-                    <button type="button" class="btn-icon"
-                            onclick="deleteItem(this)"
-                            aria-label="利用者を削除">
-                        ${iconTrash}
-                    </button>
-
-                    ${isPool ? '' : `<div class="drag-handle" aria-label="順番を変更">${iconDrag}</div>`}
-                </div>
-            `;
-
-            return el;
-        };
-
-        const escapeHTML = str => {
-            if (str === null || str === undefined) return '';
-
-            return String(str).replace(/[&<>"']/g, match => {
-                const escapeMap = {
-                    '&': '&amp;',
-                    '<': '&lt;',
-                    '>': '&gt;',
-                    '"': '&quot;',
-                    "'": '&#39;'
-                };
-
-                return escapeMap[match];
-            });
-        };
-
-        const toggleState = (btn, isPool) => {
-            const item = btn.closest('.route-item');
-            if (!item) return;
-
-            const id = item.dataset.id;
-            const route = store[currentDay].route;
-
-            if (isPool) {
-                if (!route.includes(id)) {
-                    route.push(id);
-                }
-            } else {
-                store[currentDay].route = route.filter(routeId => routeId !== id);
-            }
-
-            saveState();
-            renderUI();
-        };
-
-        const deleteItem = btn => {
-            const item = btn.closest('.route-item');
-            if (!item) return;
-
-            const id = item.dataset.id;
-            const name = item.dataset.name;
-
-            if (!confirm(`「${name}」のマスター登録を完全に削除しますか？`)) {
-                return;
-            }
-
-            store.users = store.users.filter(user => user.id !== id);
-
-            VALID_DAYS.forEach(day => {
-                store[day].route = store[day].route.filter(routeId => routeId !== id);
-            });
-
-            saveState();
-            renderUI();
-        };
-
-        const fetchLocation = () => {
-            if (!navigator.geolocation) {
-                alert('GPS非対応です');
-                return;
-            }
-
-            const input = $('originInput');
-            input.value = '取得中...';
-
-            navigator.geolocation.getCurrentPosition(
-                pos => {
-                    input.value = `${pos.coords.latitude},${pos.coords.longitude}`;
-                    saveState();
-                },
-                () => {
-                    alert('GPSの取得に失敗しました');
-                    input.value = '';
-                    saveState();
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 5000
-                }
-            );
-        };
-
-        $('originInput').addEventListener('input', saveState);
-
-        $('addBtn').addEventListener('click', () => {
-            const name = $('newName').value.trim();
-            const address = $('newAddress').value.trim();
-
-            const selectedDays = Array.from(
-                document.querySelectorAll('input[name="regDay"]:checked')
-            ).map(cb => cb.value);
-
-            if (!name || !address) {
-                alert('氏名と住所を入力してください');
-                return;
-            }
-
-            if (selectedDays.length === 0) {
-                alert('利用する曜日を1つ以上選択してください');
-                return;
-            }
-
-            const user = {
-                id: generateUUID(),
-                name,
-                address,
-                days: selectedDays
-            };
-
-            store.users.push(user);
-
-            $('newName').value = '';
-            $('newAddress').value = '';
-
-            saveState();
-            renderUI();
-        });
-
-        const returnAll = () => {
-            if (!store[currentDay].route.length) return;
-
-            store[currentDay].route = [];
-
-            saveState();
-            renderUI();
-        };
-
-        let generatedMapUrl = '';
-
-        const toggleModal = show => {
-            $('confirmModal').classList.toggle('active', show);
-        };
-
-        $('mapBtn').addEventListener('click', () => {
-            const items = Array.from(
-                document.querySelectorAll('#routeList .route-item')
+            $("routeList").appendChild(
+                createItem(user,false)
             );
 
-            const addresses = items.map(item => item.dataset.address);
-            const names = items.map(item => item.dataset.name);
-            const origin = $('originInput').value.trim();
+        }
 
-            if (!addresses.length) {
-                alert('ルートに利用者が追加されていません');
-                return;
+    });
+
+}
+
+
+/* =========================================================
+   利用者カード
+   ========================================================= */
+
+function createItem(user,isPool){
+
+    const element =
+        document.createElement("div");
+
+    element.className = "item";
+
+    element.dataset.id = user.id;
+    element.dataset.name = user.name;
+    element.dataset.address = user.address;
+
+
+    const addIcon = `
+        <svg viewBox="0 0 24 24"
+             width="18"
+             height="18"
+             stroke="currentColor"
+             stroke-width="2.5"
+             fill="none">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+    `;
+
+
+    const removeIcon = `
+        <svg viewBox="0 0 24 24"
+             width="18"
+             height="18"
+             stroke="currentColor"
+             stroke-width="2.5"
+             fill="none">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+    `;
+
+
+    const trashIcon = `
+        <svg viewBox="0 0 24 24"
+             width="16"
+             height="16"
+             stroke="var(--danger)"
+             stroke-width="2"
+             fill="none">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+            <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
+        </svg>
+    `;
+
+
+    const dragIcon = `
+        <svg viewBox="0 0 24 24">
+            <path d="M3 15h18v-2H3v2zm0 4h18v-2H3v2zm0-8h18V9H3v2zm0-6v2h18V5H3z"/>
+        </svg>
+    `;
+
+
+    element.innerHTML = `
+
+        <div class="info">
+
+            <span class="name">
+                ${escapeHTML(user.name)}
+            </span>
+
+            <span class="address">
+                ${escapeHTML(user.address)}
+            </span>
+
+        </div>
+
+        <div class="actions">
+
+            <button
+                class="icon-btn"
+                onclick="toggleState(this,${isPool})"
+                aria-label="${isPool ? "ルートへ追加":"待機へ戻す"}">
+
+                ${isPool ? addIcon : removeIcon}
+
+            </button>
+
+            <button
+                class="icon-btn"
+                onclick="deleteUser(this)"
+                aria-label="削除">
+
+                ${trashIcon}
+
+            </button>
+
+            ${
+                isPool
+                ? ""
+                : `<div class="drag">${dragIcon}</div>`
             }
 
-            if (!origin) {
-                alert('出発地点を入力してください');
-                return;
-            }
+        </div>
+    `;
 
-            const originText = origin.includes(',')
-                ? '現在地(GPS)'
-                : origin;
+    return element;
+}
 
-            $('modalFlowText').textContent =
-                `[起点] ${originText} → ` + names.join(' → ');
 
-            let url =
-                `https://www.google.com/maps/dir/?api=1` +
-                `&origin=${encodeURIComponent(origin)}` +
-                `&destination=${encodeURIComponent(addresses[addresses.length - 1])}` +
-                `&travelmode=driving`;
+/* =========================================================
+   曜日切替
+   ========================================================= */
 
-            if (addresses.length > 1) {
-                url += `&waypoints=${
-                    addresses
-                        .slice(0, -1)
-                        .map(encodeURIComponent)
-                        .join('|')
-                }`;
-            }
+function switchDay(day){
 
-            generatedMapUrl = url;
-            toggleModal(true);
-        });
+    if(!DAYS.includes(day)){
+        return;
+    }
 
-        $('executeMapBtn').addEventListener('click', () => {
-            toggleModal(false);
+    if(day === currentDay){
+        return;
+    }
 
-            if (generatedMapUrl) {
-                window.open(
-                    generatedMapUrl,
-                    '_blank',
-                    'noopener,noreferrer'
+    saveState();
+
+    currentDay = day;
+
+    renderUI();
+
+    window.scrollTo({
+        top:0,
+        behavior:"smooth"
+    });
+
+}
+
+
+/* =========================================================
+   待機 ⇔ ルート
+   ========================================================= */
+
+function toggleState(button,isPool){
+
+    const item =
+        button.closest(".item");
+
+    if(!item){
+        return;
+    }
+
+    const id =
+        item.dataset.id;
+
+    if(isPool){
+
+        if(!store[currentDay].route.includes(id)){
+
+            store[currentDay].route.push(id);
+
+        }
+
+    }else{
+
+        store[currentDay].route =
+            store[currentDay].route.filter(
+                routeId => routeId !== id
+            );
+
+    }
+
+    saveState();
+
+    renderUI();
+
+}
+
+
+/* =========================================================
+   利用者削除
+   ========================================================= */
+
+function deleteUser(button){
+
+    const item =
+        button.closest(".item");
+
+    if(!item){
+        return;
+    }
+
+    const id =
+        item.dataset.id;
+
+    const name =
+        item.dataset.name;
+
+
+    if(!confirm(
+        `「${name}」の登録を完全に削除しますか？`
+    )){
+        return;
+    }
+
+
+    store.users =
+        store.users.filter(
+            user => user.id !== id
+        );
+
+
+    DAYS.forEach(day => {
+
+        store[day].route =
+            store[day].route.filter(
+                routeId => routeId !== id
+            );
+
+    });
+
+
+    saveState();
+
+    renderUI();
+
+}
+
+
+/* =========================================================
+   利用者登録
+   ========================================================= */
+
+$("addBtn").addEventListener(
+"click",
+function(){
+
+    const name =
+        $("newName").value.trim();
+
+    const address =
+        $("newAddress").value.trim();
+
+
+    const days =
+        [...document.querySelectorAll(
+            'input[name="regDay"]:checked'
+        )]
+        .map(check => check.value);
+
+
+    if(!name || !address){
+
+        alert("氏名と住所を入力してください");
+
+        return;
+    }
+
+
+    if(days.length === 0){
+
+        alert("利用する曜日を1つ以上選択してください");
+
+        return;
+    }
+
+
+    const user = {
+
+        id:generateId(),
+
+        name:name,
+
+        address:address,
+
+        days:days
+
+    };
+
+
+    store.users.push(user);
+
+
+    $("newName").value = "";
+    $("newAddress").value = "";
+
+
+    saveState();
+
+    renderUI();
+
+});
+
+
+/* =========================================================
+   GPS
+   ========================================================= */
+
+function fetchLocation(){
+
+    if(!navigator.geolocation){
+
+        alert("GPS非対応です");
+
+        return;
+    }
+
+
+    $("originInput").value =
+        "取得中...";
+
+
+    navigator.geolocation.getCurrentPosition(
+
+        position => {
+
+            $("originInput").value =
+                `${position.coords.latitude},${position.coords.longitude}`;
+
+            saveState();
+
+        },
+
+        () => {
+
+            alert("GPSの取得に失敗しました");
+
+            $("originInput").value = "";
+
+            saveState();
+
+        },
+
+        {
+            enableHighAccuracy:true,
+            timeout:5000
+        }
+
+    );
+
+}
+
+
+/* =========================================================
+   起点変更
+   ========================================================= */
+
+$("originInput").addEventListener(
+"input",
+saveState
+);
+
+
+/* =========================================================
+   全員待機へ
+   ========================================================= */
+
+function returnAll(){
+
+    if(
+        store[currentDay].route.length === 0
+    ){
+        return;
+    }
+
+
+    store[currentDay].route = [];
+
+
+    saveState();
+
+    renderUI();
+
+}
+
+
+/* =========================================================
+   Googleマップ
+   ========================================================= */
+
+let generatedMapUrl = "";
+
+
+function toggleModal(show){
+
+    $("modal")
+        .classList
+        .toggle("active",show);
+
+}
+
+
+$("mapBtn").addEventListener(
+"click",
+function(){
+
+    const items =
+        [...document.querySelectorAll(
+            "#routeList .item"
+        )];
+
+
+    const addresses =
+        items.map(
+            item => item.dataset.address
+        );
+
+
+    const names =
+        items.map(
+            item => item.dataset.name
+        );
+
+
+    const origin =
+        $("originInput").value.trim();
+
+
+    if(addresses.length === 0){
+
+        alert(
+            "ルートに利用者が追加されていません"
+        );
+
+        return;
+    }
+
+
+    if(!origin){
+
+        alert(
+            "出発地点を入力してください"
+        );
+
+        return;
+    }
+
+
+    const originText =
+        origin.includes(",")
+        ? "現在地(GPS)"
+        : origin;
+
+
+    $("modalFlow").textContent =
+        `[起点] ${originText} → ${names.join(" → ")}`;
+
+
+    let url =
+        "https://www.google.com/maps/dir/?api=1" +
+        "&origin=" +
+        encodeURIComponent(origin) +
+        "&destination=" +
+        encodeURIComponent(
+            addresses[addresses.length - 1]
+        ) +
+        "&travelmode=driving";
+
+
+    if(addresses.length > 1){
+
+        url +=
+            "&waypoints=" +
+            addresses
+                .slice(0,-1)
+                .map(encodeURIComponent)
+                .join("|");
+
+    }
+
+
+    generatedMapUrl = url;
+
+    toggleModal(true);
+
+});
+
+
+$("executeMap").addEventListener(
+"click",
+function(){
+
+    toggleModal(false);
+
+    if(generatedMapUrl){
+
+        window.open(
+            generatedMapUrl,
+            "_blank",
+            "noopener,noreferrer"
+        );
+
+    }
+
+});
+
+
+/* =========================================================
+   モーダル操作
+   ========================================================= */
+
+$("modal").addEventListener(
+"click",
+function(event){
+
+    if(event.target === $("modal")){
+
+        toggleModal(false);
+
+    }
+
+});
+
+
+document.addEventListener(
+"keydown",
+function(event){
+
+    if(event.key === "Escape"){
+
+        toggleModal(false);
+
+    }
+
+});
+
+
+/* =========================================================
+   初期化
+   ========================================================= */
+
+window.addEventListener(
+"DOMContentLoaded",
+function(){
+
+    const version =
+        localStorage.getItem("app_version");
+
+    const data =
+        localStorage.getItem("app_data");
+
+
+    if(version === APP_VERSION && data){
+
+        try{
+
+            store =
+                normalizeStore(
+                    JSON.parse(data)
                 );
+
+
+            const savedDay =
+                localStorage.getItem("app_day");
+
+
+            if(DAYS.includes(savedDay)){
+
+                currentDay = savedDay;
+
             }
-        });
+
+        }catch(error){
+
+            console.error(
+                "保存データ読み込みエラー",
+                error
+            );
+
+        }
+
+    }else{
 
         /*
-         * モーダル外クリックで閉じる
+         * localStorage全消去はしない。
+         * このアプリのデータだけ管理する。
          */
-        $('confirmModal').addEventListener('click', event => {
-            if (event.target === $('confirmModal')) {
-                toggleModal(false);
+
+        localStorage.removeItem(
+            "app_data"
+        );
+
+        localStorage.removeItem(
+            "app_day"
+        );
+
+        localStorage.setItem(
+            "app_version",
+            APP_VERSION
+        );
+
+    }
+
+
+    renderUI();
+
+
+    /*
+     * ルート内だけ並び替え可能。
+     * 待機リストとのドラッグ移動は行わない。
+     */
+
+    new Sortable(
+        $("routeList"),
+        {
+            animation:200,
+            handle:".drag",
+            ghostClass:"sortable-ghost",
+            dragClass:"sortable-drag",
+            delay:150,
+            delayOnTouchOnly:true,
+
+            onEnd:function(){
+
+                saveState();
+
             }
-        });
+        }
+    );
 
-        /*
-         * ESCキーでモーダルを閉じる
-         */
-        document.addEventListener('keydown', event => {
-            if (event.key === 'Escape') {
-                toggleModal(false);
-            }
-        });
+});
 
-        window.addEventListener('DOMContentLoaded', () => {
-            const savedVer = localStorage.getItem('app_version');
-            const savedData = localStorage.getItem('app_data');
+</script>
 
-            if (savedVer === APP_VERSION && savedData) {
-                try {
-                    store = normalizeStore(JSON.parse(savedData));
-
-                    const savedDay = localStorage.getItem('app_day');
-                    currentDay = VALID_DAYS.includes(savedDay)
-                        ? savedDay
-                        : 'mon';
-
-                } catch (error) {
-                    console.error('保存データの読み込みに失敗しました:', error);
-                    store = normalizeStore(null);
-                    currentDay = 'mon';
-                }
-            } else {
-                /*
-                 * このアプリ自身が使っているキーだけ削除。
-                 * localStorage.clear() は使用しない。
-                 */
-                localStorage.removeItem('app_data');
-                localStorage.removeItem('app_day');
-                localStorage.setItem('app_version', APP_VERSION);
-            }
-
-            renderUI();
-
-            /*
-             * 待機リストとルートリストを相互ドラッグ可能にはしない。
-             * ルート内の順番変更だけSortableJSで行う。
-             */
-            new Sortable($('routeList'), {
-                animation: 200,
-                handle: '.drag-handle',
-                ghostClass: 'sortable-ghost',
-                dragClass: 'sortable-drag',
-                delay: 150,
-                delayOnTouchOnly: true,
-                onEnd: saveState
-            });
-        });
-    </script>
 </body>
 </html>
