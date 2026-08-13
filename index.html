@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>送迎水墨 - ルートパズル</title>
+    <!-- PWA / モバイルアプリ用メタタグ -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="送迎水墨">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #f7f5f0;
+            --paper-color: #fcfbfa;
+            --sumi-deep: #1a1a1a;
+            --sumi-mid: #4a4a4a;
+            --sumi-light: #888888;
+            --sumi-faint: #dcd7ce;
+            --accent-red: #8b2626;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: "Hiragino Mincho ProN", "Yu Mincho", "MS Mincho", serif;
+            background-color: var(--bg-color);
+            color: var(--sumi-deep);
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            -webkit-user-select: none;
+            user-select: none;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        body.rippling {
+            animation: waterRipple 0.8s ease-in-out;
+        }
+
+        @keyframes waterRipple {
+            0% { transform: translate(0, 0) scale(1); }
+            15% { transform: translate(-3px, 4px) scale(0.99); }
+            30% { transform: translate(4px, -2px) scale(1.01); }
+            45% { transform: translate(-2px, -3px) scale(0.995); }
+            60% { transform: translate(3px, 2px) scale(1.005); }
+            80% { transform: translate(-1px, 1px) scale(1); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+
+        header {
+            width: 100%;
+            max-width: 480px;
+            margin-bottom: 12px;
+            text-align: center;
+            border-bottom: 1px solid var(--sumi-faint);
+            padding-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 1.3rem;
+            letter-spacing: 0.2em;
+            margin: 0 0 2px 0;
+            font-weight: normal;
+        }
+        
+        p.subtitle {
+            font-size: 0.75rem;
+            color: var(--sumi-mid);
+            margin: 0;
+            letter-spacing: 0.05em;
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            color: var(--sumi-mid);
+            margin-bottom: 6px;
+            width: 100%;
+            max-width: 480px;
+            letter-spacing: 0.05em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hint-text {
+            font-size: 0.7rem;
+            color: var(--sumi-light);
+        }
+
+        /* 起点設定エリア */
+        .origin-setting {
+            width: 100%;
+            max-width: 480px;
+            background-color: var(--paper-color);
+            border: 1px solid var(--sumi-faint);
+            border-radius: 2px;
+            padding: 10px 14px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        .origin-label {
+            font-size: 0.8rem;
+            color: var(--sumi-mid);
+        }
+
+        .origin-input {
+            font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+            font-size: 0.9rem;
+            border: none;
+            border-bottom: 1px solid var(--sumi-light);
+            background: transparent;
+            color: var(--sumi-deep);
+            padding: 2px 4px;
+            text-align: right;
+            width: 220px;
+            outline: none;
+        }
+
+        /* 新規利用者追加フォーム */
+        .add-user-box {
+            width: 100%;
+            max-width: 480px;
+            background-color: var(--paper-color);
+            border: 1px solid var(--sumi-faint);
+            border-radius: 2px;
+            padding: 10px 14px;
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        .add-user-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .add-input {
+            font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+            font-size: 0.85rem;
+            border: 1px solid var(--sumi-faint);
+            border-radius: 2px;
+            background: #ffffff;
+            color: var(--sumi-deep);
+            padding: 6px 8px;
+            outline: none;
+            flex: 1;
+        }
+
+        .add-input::placeholder {
+            color: var(--sumi-light);
+        }
+
+        .add-btn {
+            font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+            background-color: var(--sumi-mid);
+            color: var(--paper-color);
+            border: none;
+            border-radius: 2px;
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            letter-spacing: 0.05em;
+            transition: background-color 0.2s;
+            white-space: nowrap;
+        }
+
+        .add-btn:active {
+            background-color: var(--sumi-deep);
+        }
+
+        .search-helper {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .helper-btn {
+            font-size: 0.7rem;
+            background: #f0ede6;
+            border: 1px solid var(--sumi-faint);
+            padding: 2px 6px;
+            border-radius: 2px;
+            cursor: pointer;
+            color: var(--sumi-mid);
+        }
+        .helper-btn:hover {
+            background: var(--sumi-faint);
+        }
+
+        /* プール領域（控え室） */
+        #userPool {
+            width: 100%;
+            max-width: 480px;
+            min-height: 80px;
+            background-color: #f0ebe1;
+            border: 1px dashed var(--sumi-light);
+            border-radius: 2px;
+            padding: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-content: flex-start;
+        }
+
+        /* 本日のルートパズル領域 */
+        #routeList {
+            width: 100%;
+            max-width: 480px;
+            min-height: 160px;
+            background-color: var(--paper-color);
+            border-radius: 2px;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid var(--sumi-faint);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        #routeList::before {
+            content: "";
+            position: absolute;
+            left: 24px;
+            top: 15px;
+            bottom: 15px;
+            width: 1px;
+            background-color: var(--sumi-faint);
+            z-index: 0;
+        }
+
+        /* カード共通スタイル */
+        .route-item {
+            position: relative;
+            z-index: 1;
+            background-color: var(--paper-color);
+            border: 1px solid var(--sumi-faint);
+            border-radius: 2px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+            cursor: grab;
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+            -webkit-tap-highlight-color: transparent;
+            width: 100%;
+        }
+
+        /* プール内のカード */
+        #userPool .route-item {
+            width: auto;
+            flex-grow: 1;
+            min-width: 140px;
+            padding: 8px 10px;
+            margin-bottom: 0;
+        }
+        #userPool .route-item .user-address,
+        #userPool .route-item .drag-handle {
+            display: none;
+        }
+        #userPool .route-item .user-name {
+            font-size: 0.85rem;
+            margin-bottom: 0;
+        }
+
+        .route-item.sortable-drag {
+            opacity: 0.95;
+            background-color: #ffffff;
+            transform: scale(1.02);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            border: 1px solid var(--sumi-deep);
+            cursor: grabbing;
+        }
+
+        .route-item.sortable-ghost {
+            opacity: 0.2;
+            background-color: var(--sumi-faint);
+            border: 1px dashed var(--sumi-light);
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            padding-left: 6px;
+        }
+
+        .user-name {
+            font-size: 0.95rem;
+            letter-spacing: 0.05em;
+            margin-bottom: 2px;
+            font-weight: bold;
+        }
+
+        .user-address {
+            font-size: 0.75rem;
+            color: var(--sumi-light);
+            letter-spacing: 0.02em;
+        }
+
+        .card-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .quick-add-btn {
+            background: none;
+            border: 1px solid var(--sumi-faint);
+            border-radius: 2px;
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            color: var(--sumi-mid);
+            cursor: pointer;
+            font-family: inherit;
+        }
+        #userPool .quick-add-btn { display: block; }
+        #routeList .quick-add-btn { display: none; }
+
+        .drag-handle {
+            font-size: 0.9rem;
+            color: var(--sumi-mid);
+            background-color: #f0ede6;
+            padding: 6px 10px;
+            border-radius: 2px;
+            cursor: grab;
+            letter-spacing: 1px;
+            border: 1px solid var(--sumi-faint);
+        }
+        #userPool .drag-handle { display: none; }
+
+        .action-area {
+            width: 100%;
+            max-width: 480px;
+            position: sticky;
+            bottom: 16px;
+        }
+
+        .action-btn {
+            width: 100%;
+            background-color: var(--sumi-deep);
+            color: var(--paper-color);
+            border: none;
+            border-radius: 2px;
+            padding: 15px;
+            font-size: 0.95rem;
+            letter-spacing: 0.15em;
+            font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: background-color 0.2s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btn::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: var(--accent-red);
+        }
+
+        .action-btn:active {
+            background-color: #333333;
+            transform: scale(0.99);
+        }
+
+        .map-icon {
+            width: 18px;
+            height: 18px;
+            fill: var(--paper-color);
+        }
+
+        #sumiOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle, #1a1a1a 0%, #0d0d0d 60%, #000000 100%);
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0);
+            border-radius: 50%;
+            transition: transform 0.9s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s ease;
+        }
+
+        #sumiOverlay.active {
+            opacity: 1;
+            transform: scale(4);
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="sumiOverlay"></div>
+
+    <header>
+        <h1>送迎ルート</h1>
+        <p class="subtitle">―― 控え室より選び、ルートを組む ――</p>
+    </header>
+
+    <div class="origin-setting">
+        <span class="origin-label">出発地点（起点）</span>
+        <input type="text" id="originInput" class="origin-input" value="三重県四日市市役所">
+    </div>
+
+    <div class="add-user-box">
+        <span class="origin-label">利用者を追加（控えへ登録）</span>
+        <div class="add-user-row">
+            <input type="text" id="newNameInput" class="add-input" placeholder="氏名（例：田中 太郎）">
+            <input type="text" id="newAddressInput" class="add-input" placeholder="住所（例：四日市市安島）">
+            <button type="button" id="addUserBtn" class="add-btn">登録</button>
+        </div>
+        <div class="search-helper">
+            <span style="font-size: 0.75rem; color: var(--sumi-mid);">四日市エリアクイック:</span>
+            <button type="button" class="helper-btn" onclick="setPresetAddress('諏訪栄町')">諏訪栄町</button>
+            <button type="button" class="helper-btn" onclick="setPresetAddress('日永西')">日永西</button>
+            <button type="button" class="helper-btn" onclick="setPresetAddress('智積町')">智積町</button>
+            <button type="button" class="helper-btn" onclick="setPresetAddress('中部')">中部</button>
+        </div>
+    </div>
+
+    <div class="section-title">
+        <span>利用者控</span>
+        <span class="hint-text">ドラッグ、または [＋追加]</span>
+    </div>
+    <div id="userPool">
+        <div class="route-item" data-address="四日市市智積町">
+            <div class="user-info"><span class="user-name">高橋 健一 様</span></div>
+            <button type="button" class="quick-add-btn" onclick="moveToRoute(this)">＋ 追加</button>
+            <div class="drag-handle">三</div>
+        </div>
+        <div class="route-item" data-address="四日市市日永西">
+            <div class="user-info"><span class="user-name">渡辺 恵子 様</span></div>
+            <button type="button" class="quick-add-btn" onclick="moveToRoute(this)">＋ 追加</button>
+            <div class="drag-handle">三</div>
+        </div>
+    </div>
+
+    <div class="section-title" style="margin-top: 10px;">
+        <span>本日の送迎順</span>
+        <span class="hint-text">並び替え・控へ戻す</span>
+    </div>
+    <ul id="routeList">
+        <div class="route-item" data-address="四日市市諏訪町1-5">
+            <div class="user-info">
+                <span class="user-name">山田 太郎 様</span>
+                <span class="user-address">四日市市諏訪町</span>
+            </div>
+            <div class="card-actions">
+                <button type="button" class="quick-add-btn" onclick="moveToPool(this)" style="display:inline-block;">控へ戻す</button>
+                <div class="drag-handle">三</div>
+            </div>
+        </div>
+        <div class="route-item" data-address="四日市市西島町10-2">
+            <div class="user-info">
+                <span class="user-name">佐藤 花子 様</span>
+                <span class="user-address">四日市市西島町</span>
+            </div>
+            <div class="card-actions">
+                <button type="button" class="quick-add-btn" onclick="moveToPool(this)" style="display:inline-block;">控へ戻す</button>
+                <div class="drag-handle">三</div>
+            </div>
+        </div>
+    </ul>
+
+    <div class="action-area">
+        <button id="generateMapBtn" class="action-btn">
+            <svg class="map-icon" viewBox="0 0 576 512"><path d="M408 120g0 56.9L253.6 246c-9.5 7.8-23.5 7.8-33 0L72 176.9V120c0-13.3 10.7-24 24-24h288c13.3 0 24 10.7 24 24zm160 80.9L416 339v93c0 17.8-19.2 29.1-34.7 20.5l-104.5-59L194.5 452.5C179.2 461.1 160 449.8 160 432v-93L8 200.9c-14.7-8.6-8.3-30.9 8.9-30.9h155.1l48.8-40c10.9-8.9 27.1-8.9 38 0l48.8 40h155.1c17.2 0 23.6 22.3 8.9 30.9z"/></svg>
+            案内開始
+        </button>
+    </div>
+
+    <script>
+        const userPool = document.getElementById('userPool');
+        const routeList = document.getElementById('routeList');
+        const originInput = document.getElementById('originInput');
+
+        // --- データの永続化（LocalStorage） ---
+        function saveAppData() {
+            localStorage.setItem('sumi_user_pool', userPool.innerHTML);
+            localStorage.setItem('sumi_route_list', routeList.innerHTML);
+            localStorage.setItem('sumi_origin', originInput.value);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if(localStorage.getItem('sumi_user_pool')) {
+                userPool.innerHTML = localStorage.getItem('sumi_user_pool');
+            }
+            if(localStorage.getItem('sumi_route_list')) {
+                routeList.innerHTML = localStorage.getItem('sumi_route_list');
+            }
+            if(localStorage.getItem('sumi_origin')) {
+                originInput.value = localStorage.getItem('sumi_origin');
+            }
+            initSortable();
+        });
+
+        function initSortable() {
+            const sharedOptions = {
+                animation: 250,
+                handle: '.drag-handle',
+                ghostClass: 'sortable-ghost',
+                dragClass: 'sortable-drag',
+                delay: 100,
+                delayOnTouchOnly: true,
+                group: 'sharedRoutes',
+                onEnd: function() {
+                    saveAppData();
+                }
+            };
+            new Sortable(userPool, sharedOptions);
+            new Sortable(routeList, sharedOptions);
+        }
+
+        originInput.addEventListener('input', saveAppData);
+
+        function setPresetAddress(town) {
+            document.getElementById('newAddressInput').value = `四日市市${town}`;
+        }
+
+        function moveToRoute(btn) {
+            const item = btn.closest('.route-item');
+            routeList.appendChild(item);
+            updateCardState(item, false);
+            saveAppData();
+        }
+
+        function moveToPool(btn) {
+            const item = btn.closest('.route-item');
+            userPool.appendChild(item);
+            updateCardState(item, true);
+            saveAppData();
+        }
+
+        function updateCardState(item, isPool) {
+            const actionContainer = item.querySelector('.card-actions') || createActionContainer(item);
+            const btn = actionContainer.querySelector('.quick-add-btn');
+            
+            if (isPool) {
+                btn.textContent = '＋ 追加';
+                btn.setAttribute('onclick', 'moveToRoute(this)');
+                item.querySelector('.user-address')?.remove();
+            } else {
+                btn.textContent = '控へ戻す';
+                btn.setAttribute('onclick', 'moveToPool(this)');
+                if (!item.querySelector('.user-address')) {
+                    const info = item.querySelector('.user-info');
+                    const addrSpan = document.createElement('span');
+                    addrSpan.className = 'user-address';
+                    addrSpan.textContent = item.getAttribute('data-address');
+                    info.appendChild(addrSpan);
+                }
+            }
+        }
+
+        function createActionContainer(item) {
+            const div = document.createElement('div');
+            div.className = 'card-actions';
+            div.innerHTML = `<button type="button" class="quick-add-btn"></button><div class="drag-handle">三</div>`;
+            item.appendChild(div);
+            return div;
+        }
+
+        document.getElementById('addUserBtn').addEventListener('click', () => {
+            const nameInput = document.getElementById('newNameInput');
+            const addressInput = document.getElementById('newAddressInput');
+            
+            const name = nameInput.value.trim();
+            const address = addressInput.value.trim();
+
+            if (!name || !address) {
+                alert('氏名と住所を入力してください。');
+                return;
+            }
+
+            const fullAddress = address.startsWith('四日市市') ? address : `四日市市${address}`;
+
+            const newItem = document.createElement('div');
+            newItem.className = 'route-item';
+            newItem.setAttribute('data-address', fullAddress);
+            newItem.innerHTML = `
+                <div class="user-info">
+                    <span class="user-name">${name} 様</span>
+                </div>
+                <div class="card-actions">
+                    <button type="button" class="quick-add-btn" onclick="moveToRoute(this)">＋ 追加</button>
+                    <div class="drag-handle" style="display:none;">三</div>
+                </div>
+            `;
+
+            userPool.appendChild(newItem);
+            nameInput.value = '';
+            addressInput.value = '';
+            saveAppData();
+        });
+
+        document.getElementById('generateMapBtn').addEventListener('click', () => {
+            const items = [...routeList.querySelectorAll('.route-item')];
+            const addresses = items.map(item => item.getAttribute('data-address'));
+            const originVal = originInput.value.trim();
+
+            if (addresses.length === 0) {
+                alert('本日の送迎ルートに利用者が配置されていません。');
+                return;
+            }
+
+            if (!originVal) {
+                alert('出発地点を入力してください。');
+                return;
+            }
+
+            const names = items.map(item => item.querySelector('.user-name').textContent);
+            if(!confirm(`出発：${originVal}\n\n以下の順序で道筋を手配しますか？\n\n${names.join(' → ')}`)) {
+                return;
+            }
+
+            const origin = encodeURIComponent(originVal);
+            const destination = encodeURIComponent(addresses[addresses.length - 1]);
+            
+            let url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&travelmode=driving`;
+
+            if (addresses.length > 1) {
+                const waypoints = addresses.slice(0, -1).map(addr => encodeURIComponent(addr)).join('|');
+                url += `&waypoints=${waypoints}`;
+            }
+
+            document.body.classList.add('rippling');
+            const overlay = document.getElementById('sumiOverlay');
+            overlay.classList.add('active');
+
+            setTimeout(() => {
+                window.open(url, '_blank');
+                setTimeout(() => {
+                    overlay.classList.remove('active');
+                    document.body.classList.remove('rippling');
+                }, 500);
+            }, 800);
+        });
+    </script>
+</body>
+</html>
