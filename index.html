@@ -37,20 +37,6 @@
             min-height: 100vh;
         }
 
-        body.rippling {
-            animation: waterRipple 0.8s ease-in-out;
-        }
-
-        @keyframes waterRipple {
-            0% { transform: translate(0, 0) scale(1); }
-            15% { transform: translate(-3px, 4px) scale(0.99); }
-            30% { transform: translate(4px, -2px) scale(1.01); }
-            45% { transform: translate(-2px, -3px) scale(0.995); }
-            60% { transform: translate(3px, 2px) scale(1.005); }
-            80% { transform: translate(-1px, 1px) scale(1); }
-            100% { transform: translate(0, 0) scale(1); }
-        }
-
         header {
             width: 100%;
             max-width: 480px;
@@ -105,7 +91,6 @@
             background: var(--sumi-faint);
         }
 
-        /* 起点設定エリア */
         .origin-setting {
             width: 100%;
             max-width: 480px;
@@ -138,7 +123,6 @@
             outline: none;
         }
 
-        /* 新規利用者追加フォーム */
         .add-user-box {
             width: 100%;
             max-width: 480px;
@@ -211,7 +195,6 @@
             background: var(--sumi-faint);
         }
 
-        /* プール領域（控え室） */
         #userPool {
             width: 100%;
             max-width: 480px;
@@ -227,7 +210,6 @@
             align-content: flex-start;
         }
 
-        /* 本日のルートパズル領域 */
         #routeList {
             width: 100%;
             max-width: 480px;
@@ -255,7 +237,6 @@
             z-index: 0;
         }
 
-        /* カード共通スタイル */
         .route-item {
             position: relative;
             z-index: 1;
@@ -272,7 +253,6 @@
             width: 100%;
         }
 
-        /* プール内のカード固有調整 */
         #userPool .route-item {
             width: auto;
             flex-grow: 1;
@@ -288,7 +268,6 @@
             display: none !important;
         }
 
-        /* 送迎順のカード固有調整 */
         #routeList .route-item {
             cursor: grab;
         }
@@ -415,31 +394,104 @@
             fill: var(--paper-color);
         }
 
-        #sumiOverlay {
+        #sumiModal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: radial-gradient(circle, #1a1a1a 0%, #0d0d0d 60%, #000000 100%);
-            z-index: 9999;
+            background: rgba(26, 26, 26, 0.7);
+            backdrop-filter: blur(2px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             opacity: 0;
             pointer-events: none;
-            transform: scale(0);
-            border-radius: 50%;
-            transition: transform 0.9s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s ease;
+            transition: opacity 0.3s ease;
         }
 
-        #sumiOverlay.active {
+        #sumiModal.active {
             opacity: 1;
-            transform: scale(4);
             pointer-events: auto;
+        }
+
+        .modal-content {
+            background-color: var(--paper-color);
+            border: 1px solid var(--sumi-faint);
+            border-radius: 3px;
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            transform: translateY(10px);
+            transition: transform 0.3s ease;
+        }
+
+        #sumiModal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            font-size: 0.95rem;
+            letter-spacing: 0.1em;
+            border-bottom: 1px dashed var(--sumi-faint);
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            color: var(--sumi-deep);
+            text-align: center;
+        }
+
+        .modal-body {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: var(--sumi-mid);
+            margin-bottom: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .modal-route-flow {
+            background: #f7f5f0;
+            padding: 10px;
+            border-radius: 2px;
+            border: 1px solid var(--sumi-faint);
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: var(--sumi-deep);
+            word-break: break-all;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+            padding: 10px;
+            border-radius: 2px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            letter-spacing: 0.05em;
+            text-align: center;
+        }
+
+        .modal-btn.cancel {
+            background: #f0ede6;
+            border: 1px solid var(--sumi-faint);
+            color: var(--sumi-mid);
+        }
+
+        .modal-btn.submit {
+            background: var(--sumi-deep);
+            border: none;
+            color: var(--paper-color);
         }
     </style>
 </head>
 <body>
-
-    <div id="sumiOverlay"></div>
 
     <header>
         <h1>送迎道筋</h1>
@@ -471,9 +523,7 @@
         <span>利用者プール（控）</span>
         <span class="hint-text">[＋ 追加] で送迎順へ</span>
     </div>
-    <div id="userPool">
-        <!-- 初期データは空 -->
-    </div>
+    <div id="userPool"></div>
 
     <div class="section-title" style="margin-top: 10px;">
         <span>本日の送迎順</span>
@@ -482,9 +532,7 @@
             <span class="hint-text" style="margin-left: 4px;">並び替え</span>
         </div>
     </div>
-    <div id="routeList">
-        <!-- 初期データは空 -->
-    </div>
+    <div id="routeList"></div>
 
     <div class="action-area">
         <button id="generateMapBtn" class="action-btn">
@@ -493,28 +541,111 @@
         </button>
     </div>
 
+    <!-- 遊び心のあるカスタム確認モーダル -->
+    <div id="sumiModal">
+        <div class="modal-content">
+            <div class="modal-header">―― 出陣の儀 ――</div>
+            <div class="modal-body">
+                <span id="modalOriginText" style="font-weight: bold;"></span> からの道筋を検知しました。本日の布陣は以下の通りでよろしいですか？
+                <div class="modal-route-flow" id="modalRouteFlowText"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-btn cancel" id="modalCancelBtn">考え直す</button>
+                <button type="button" class="modal-btn submit" id="modalSubmitBtn">いざ、出陣！</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const userPool = document.getElementById('userPool');
         const routeList = document.getElementById('routeList');
         const originInput = document.getElementById('originInput');
+        const sumiModal = document.getElementById('sumiModal');
+        const modalOriginText = document.getElementById('modalOriginText');
+        const modalRouteFlowText = document.getElementById('modalRouteFlowText');
+        const modalCancelBtn = document.getElementById('modalCancelBtn');
+        const modalSubmitBtn = document.getElementById('modalSubmitBtn');
 
-        // --- データの永続化（LocalStorage） ---
+        const CURRENT_VERSION = 'v6_clean_state';
+
+        // 状態をJSONデータとして管理する堅牢な設計に変更
+        let appState = {
+            origin: '三重県四日市市役所',
+            pool: [], // 例: [{id, name, address}]
+            route: []
+        };
+
         function saveAppData() {
-            localStorage.setItem('sumi_user_pool', userPool.innerHTML);
-            localStorage.setItem('sumi_route_list', routeList.innerHTML);
-            localStorage.setItem('sumi_origin', originInput.value);
+            appState.origin = originInput.value;
+            // DOMから現在の状態を抽出しなおして保存
+            appState.pool = extractItemsFromContainer(userPool);
+            appState.route = extractItemsFromContainer(routeList);
+            
+            localStorage.setItem('sumi_version', CURRENT_VERSION);
+            localStorage.setItem('sumi_app_state', JSON.stringify(appState));
+        }
+
+        function extractItemsFromContainer(container) {
+            return [...container.querySelectorAll('.route-item')].map(item => ({
+                name: item.getAttribute('data-name'),
+                address: item.getAttribute('data-address')
+            }));
+        }
+
+        function renderApp() {
+            originInput.value = appState.origin;
+            userPool.innerHTML = '';
+            routeList.innerHTML = '';
+
+            appState.pool.forEach(user => userPool.appendChild(createCard(user, true)));
+            appState.route.forEach(user => routeList.appendChild(createCard(user, false)));
+        }
+
+        function createCard(user, isPool) {
+            const item = document.createElement('div');
+            item.className = 'route-item';
+            item.setAttribute('data-name', user.name);
+            item.setAttribute('data-address', user.address);
+            
+            const btnText = isPool ? '＋ 追加' : '控へ戻す';
+            const btnAction = isPool ? 'moveToRoute(this)' : 'moveToPool(this)';
+            
+            let handleHtml = isPool ? '' : '<div class="drag-handle">三</div>';
+
+            item.innerHTML = `
+                <div class="user-info">
+                    <span class="user-name">${user.name} 様</span>
+                    <span class="user-address">${user.address}</span>
+                </div>
+                <div class="card-actions">
+                    <button type="button" class="action-btn-mini" onclick="${btnAction}">${btnText}</button>
+                    <button type="button" class="action-btn-mini delete-btn" onclick="deleteItem(this)">×</button>
+                    ${handleHtml}
+                </div>
+            `;
+            return item;
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            if(localStorage.getItem('sumi_user_pool') !== null) {
-                userPool.innerHTML = localStorage.getItem('sumi_user_pool');
+            const savedVersion = localStorage.getItem('sumi_version');
+            const savedState = localStorage.getItem('sumi_app_state');
+
+            if (savedVersion !== CURRENT_VERSION || !savedState) {
+                localStorage.clear();
+                localStorage.setItem('sumi_version', CURRENT_VERSION);
+                appState = {
+                    origin: '三重県四日市市役所',
+                    pool: [],
+                    route: []
+                };
+            } else {
+                try {
+                    appState = JSON.parse(savedState);
+                } catch (e) {
+                    appState = { origin: '三重県四日市市役所', pool: [], route: [] };
+                }
             }
-            if(localStorage.getItem('sumi_route_list') !== null) {
-                routeList.innerHTML = localStorage.getItem('sumi_route_list');
-            }
-            if(localStorage.getItem('sumi_origin')) {
-                originInput.value = localStorage.getItem('sumi_origin');
-            }
+            renderApp();
             initSortable();
         });
 
@@ -530,7 +661,24 @@
                 onAdd: function (evt) {
                     const item = evt.item;
                     const isPool = (evt.to.id === 'userPool');
-                    updateCardState(item, isPool);
+                    
+                    // DOMを直接いじる代わりに再描画または状態更新して安全に切り替え
+                    const user = {
+                        name: item.getAttribute('data-name'),
+                        address: item.getAttribute('data-address')
+                    };
+                    item.remove(); // 既存のドラッグ要素を一度消してキレイに再生成させる
+                    
+                    if (isPool) {
+                        appState.pool.push(user);
+                        const index = appState.route.findIndex(u => u.name === user.name && u.address === user.address);
+                        if (index > -1) appState.route.splice(index, 1);
+                    } else {
+                        appState.route.push(user);
+                        const index = appState.pool.findIndex(u => u.name === user.name && u.address === user.address);
+                        if (index > -1) appState.pool.splice(index, 1);
+                    }
+                    renderApp();
                     saveAppData();
                 },
                 onEnd: function() {
@@ -549,55 +697,44 @@
 
         function moveToRoute(btn) {
             const item = btn.closest('.route-item');
-            routeList.appendChild(item);
-            updateCardState(item, false);
+            const user = { name: item.getAttribute('data-name'), address: item.getAttribute('data-address') };
+            
+            appState.pool = appState.pool.filter(u => !(u.name === user.name && u.address === user.address));
+            appState.route.push(user);
+            
+            renderApp();
             saveAppData();
         }
 
         function moveToPool(btn) {
             const item = btn.closest('.route-item');
-            userPool.appendChild(item);
-            updateCardState(item, true);
+            const user = { name: item.getAttribute('data-name'), address: item.getAttribute('data-address') };
+            
+            appState.route = appState.route.filter(u => !(u.name === user.name && u.address === user.address));
+            appState.pool.push(user);
+            
+            renderApp();
             saveAppData();
         }
 
         function deleteItem(btn) {
             const item = btn.closest('.route-item');
-            item.remove();
-            saveAppData();
-        }
-
-        // 一括で送迎順のカードをすべて控へ戻す
-        function returnAllToPool() {
-            const items = [...routeList.querySelectorAll('.route-item')];
-            if (items.length === 0) return;
+            const name = item.getAttribute('data-name');
+            const address = item.getAttribute('data-address');
             
-            items.forEach(item => {
-                userPool.appendChild(item);
-                updateCardState(item, true);
-            });
+            appState.pool = appState.pool.filter(u => !(u.name === name && u.address === address));
+            appState.route = appState.route.filter(u => !(u.name === name && u.address === address));
+            
+            renderApp();
             saveAppData();
         }
 
-        function updateCardState(item, isPool) {
-            const btn = item.querySelector('.action-btn-mini:not(.delete-btn)');
-            let handle = item.querySelector('.drag-handle');
-
-            if (isPool) {
-                btn.textContent = '＋ 追加';
-                btn.setAttribute('onclick', 'moveToRoute(this)');
-                if (handle) handle.remove();
-            } else {
-                btn.textContent = '控へ戻す';
-                btn.setAttribute('onclick', 'moveToPool(this)');
-                if (!handle) {
-                    const actions = item.querySelector('.card-actions');
-                    const newHandle = document.createElement('div');
-                    newHandle.className = 'drag-handle';
-                    newHandle.textContent = '三';
-                    actions.appendChild(newHandle);
-                }
-            }
+        function returnAllToPool() {
+            if (appState.route.length === 0) return;
+            appState.pool.push(...appState.route);
+            appState.route = [];
+            renderApp();
+            saveAppData();
         }
 
         document.getElementById('addUserBtn').addEventListener('click', () => {
@@ -614,25 +751,15 @@
 
             const fullAddress = address.startsWith('四日市市') ? address : `四日市市${address}`;
 
-            const newItem = document.createElement('div');
-            newItem.className = 'route-item';
-            newItem.setAttribute('data-address', fullAddress);
-            newItem.innerHTML = `
-                <div class="user-info">
-                    <span class="user-name">${name} 様</span>
-                    <span class="user-address">${fullAddress}</span>
-                </div>
-                <div class="card-actions">
-                    <button type="button" class="action-btn-mini" onclick="moveToRoute(this)">＋ 追加</button>
-                    <button type="button" class="action-btn-mini delete-btn" onclick="deleteItem(this)">×</button>
-                </div>
-            `;
-
-            userPool.appendChild(newItem);
+            appState.pool.push({ name, address: fullAddress });
             nameInput.value = '';
             addressInput.value = '';
+            
+            renderApp();
             saveAppData();
         });
+
+        let pendingMapUrl = '';
 
         document.getElementById('generateMapBtn').addEventListener('click', () => {
             const items = [...routeList.querySelectorAll('.route-item')];
@@ -650,9 +777,9 @@
             }
 
             const names = items.map(item => item.querySelector('.user-name').textContent);
-            if(!confirm(`出発：${originVal}\n\n以下の順序で道筋を手配しますか？\n\n${names.join(' → ')}`)) {
-                return;
-            }
+            
+            modalOriginText.textContent = originVal;
+            modalRouteFlowText.textContent = `[起点] ${originVal} → ` + names.join(' → ');
 
             const origin = encodeURIComponent(originVal);
             const destination = encodeURIComponent(addresses[addresses.length - 1]);
@@ -664,17 +791,19 @@
                 url += `&waypoints=${waypoints}`;
             }
 
-            document.body.classList.add('rippling');
-            const overlay = document.getElementById('sumiOverlay');
-            overlay.classList.add('active');
+            pendingMapUrl = url;
+            sumiModal.classList.add('active');
+        });
 
-            setTimeout(() => {
-                window.open(url, '_blank');
-                setTimeout(() => {
-                    overlay.classList.remove('active');
-                    document.body.classList.remove('rippling');
-                }, 500);
-            }, 800);
+        modalCancelBtn.addEventListener('click', () => {
+            sumiModal.classList.remove('active');
+        });
+
+        modalSubmitBtn.addEventListener('click', () => {
+            sumiModal.classList.remove('active');
+            if (pendingMapUrl) {
+                window.open(pendingMapUrl, '_blank');
+            }
         });
     </script>
 </body>
