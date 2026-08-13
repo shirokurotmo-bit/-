@@ -514,6 +514,71 @@
             border: none;
             color: var(--paper-color);
         }
+
+        /* 馬が駆ける演出用アニメーション画面 */
+        #chargeScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--bg-color);
+            z-index: 20000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        #chargeScreen.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .charge-track {
+            width: 100%;
+            max-width: 480px;
+            height: 120px;
+            position: relative;
+            border-bottom: 2px solid var(--sumi-deep);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .galloping-horse {
+            position: absolute;
+            bottom: 2px;
+            left: -80px;
+            font-size: 2.5rem;
+            transition: transform 0.1s ease;
+        }
+
+        @keyframes gallop {
+            0% { left: -80px; }
+            100% { left: 105%; }
+        }
+
+        #chargeScreen.active .galloping-horse {
+            animation: gallop 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+
+        .charge-message {
+            font-size: 1.1rem;
+            letter-spacing: 0.3em;
+            color: var(--sumi-deep);
+            text-align: center;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.4s ease 0.3s, transform 0.4s ease 0.3s;
+        }
+
+        #chargeScreen.active .charge-message {
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
@@ -584,6 +649,14 @@
         </div>
     </div>
 
+    <!-- 馬が駆け抜ける演出画面 -->
+    <div id="chargeScreen">
+        <div class="charge-track">
+            <div class="galloping-horse">🐎</div>
+        </div>
+        <div class="charge-message">いざ、出陣……！</div>
+    </div>
+
     <script>
         const userPool = document.getElementById('userPool');
         const routeList = document.getElementById('routeList');
@@ -593,8 +666,9 @@
         const modalRouteFlowText = document.getElementById('modalRouteFlowText');
         const modalCancelBtn = document.getElementById('modalCancelBtn');
         const modalSubmitBtn = document.getElementById('modalSubmitBtn');
+        const chargeScreen = document.getElementById('chargeScreen');
 
-        const CURRENT_VERSION = 'v7_geolocation';
+        const CURRENT_VERSION = 'v8_galloping_horse';
 
         let appState = {
             origin: '',
@@ -675,7 +749,6 @@
             initSortable();
         });
 
-        // 現在地取得処理（Geolocation API）
         function fetchCurrentLocation() {
             if (!navigator.geolocation) {
                 alert('お使いのブラウザは位置情報に対応していません。');
@@ -688,7 +761,6 @@
                 (position) => {
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
-                    // Google Mapsで緯度経度を起点として正確に認識させる形式
                     originInput.value = `${lat},${lng}`;
                     saveAppData();
                 },
@@ -850,11 +922,20 @@
             sumiModal.classList.remove('active');
         });
 
+        // 「いざ、出陣！」クリック時に馬を走らせる演出を発動
         modalSubmitBtn.addEventListener('click', () => {
             sumiModal.classList.remove('active');
-            if (pendingMapUrl) {
-                window.open(pendingMapUrl, '_blank');
-            }
+            
+            // 馬の疾走アニメーション画面を表示
+            chargeScreen.classList.add('active');
+
+            // 1.2秒（馬が走り抜ける時間）後に地図タブを開き、演出画面を閉じる
+            setTimeout(() => {
+                if (pendingMapUrl) {
+                    window.open(pendingMapUrl, '_blank');
+                }
+                chargeScreen.classList.remove('active');
+            }, 1200);
         });
     </script>
 </body>
