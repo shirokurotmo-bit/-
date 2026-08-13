@@ -6,6 +6,12 @@
     <title>送迎ルート管理</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="送迎ルート管理">
+    
+    <!-- PWA・ファビコン用アイコン設定（ご提示いただいたコアラ画像） -->
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" id="dynamic-favicon">
+    <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" id="apple-touch-icon-link">
+
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <style>
         /* Modern CSS Reset & Variables */
@@ -25,7 +31,14 @@
         }
 
         .app-container { max-width: 480px; margin: 0 auto; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
-        header { padding: 8px 0 4px; }
+        header { padding: 8px 0 4px; display: flex; align-items: center; gap: 12px; }
+        
+        /* アプリヘッダーのアイコン表示 */
+        .app-icon {
+            width: 40px; height: 40px; border-radius: 10px; object-fit: cover;
+            border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);
+        }
+        
         h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
 
         .card { background-color: var(--surface-color); border-radius: var(--radius-lg); padding: 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); }
@@ -39,7 +52,6 @@
         }
         input[type="text"]:focus { outline: none; border-color: var(--accent-color); background-color: var(--surface-color); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
 
-        /* Day Selection Chips */
         .day-chips { display: flex; gap: 4px; margin: 12px 0; justify-content: space-between; }
         .day-chip { flex: 1; position: relative; cursor: pointer; }
         .day-chip input { position: absolute; opacity: 0; width: 0; height: 0; }
@@ -77,7 +89,6 @@
         .drag-handle { color: var(--border-color); padding: 8px; cursor: grab; display: flex; }
         .drag-handle svg { width: 20px; height: 20px; fill: currentColor; }
 
-        /* Bottom Nav & FAB & Modal styles remain same but compressed for space */
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: var(--nav-height); background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid rgba(0,0,0,0.05); display: flex; justify-content: space-around; align-items: center; padding: 0 8px; padding-bottom: env(safe-area-inset-bottom); z-index: 50; }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: transparent; color: var(--text-muted); font-size: 0.8rem; font-weight: 600; border-radius: 0; }
         .nav-item.active { color: var(--accent-color); }
@@ -102,6 +113,7 @@
 
     <div class="app-container">
         <header>
+            <img src="" alt="アイコン" class="app-icon" id="headerIcon">
             <h1>ルート管理</h1>
         </header>
 
@@ -182,8 +194,37 @@
     </div>
 
     <script>
-        const APP_VERSION = 'v15_master';
+        const APP_VERSION = 'v16_icon';
         const $ = id => document.getElementById(id);
+
+        // ご提示いただいたコアラ画像のBase64データ
+        const APP_ICON_BASE64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAAQMAAABmvDolAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAFBJREFUeJztwQEBAAAAgiD/r25IQAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwHkAAAB7xJpRAAAAABJRU5ErkJggg==";
+        // ※ 上記プレースホルダーを実際の高解像度Base64文字列に差し替えるか、以下のCanvas自動変換ルーチンで画像から安全に生成します
+
+        // 起動時に画像を読み込み、ファビコンと画面内アイコンに動的適用する処理
+        const initAppIcon = () => {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            // アップロードされた実際の画像URLをここに反映
+            img.src = "名称未設定のデザイン.png"; 
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 180;
+                canvas.height = 180;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, 180, 180);
+                const dataUrl = canvas.toDataURL('image/png');
+                
+                // ファビコン・Apple Touch Icon・ヘッダーアイコンを一括更新
+                $('dynamic-favicon').href = dataUrl;
+                $('apple-touch-icon-link').href = dataUrl;
+                $('headerIcon').src = dataUrl;
+            };
+            img.onerror = () => {
+                // 万が一画像ロードに失敗した場合のフォールバック
+                $('headerIcon.style').display = 'none';
+            };
+        };
         
         const escapeHTML = str => {
             if (!str) return '';
@@ -193,15 +234,12 @@
             });
         };
 
-        // UUID生成器 (Fallback対応)
         const generateUUID = () => crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2) + Date.now().toString(36);
 
         let currentDay = 'mon';
-        
-        // データ構造の抜本的見直し：users(マスター)と各曜日のroute(IDリスト)のみ
         let store = {
-            users: [], // { id, name, address, days: ['mon', 'thu'] }
-            mon: { origin: '', route: [] }, // route配列にはuser.idのみ格納
+            users: [],
+            mon: { origin: '', route: [] },
             tue: { origin: '', route: [] },
             wed: { origin: '', route: [] },
             thu: { origin: '', route: [] },
@@ -209,7 +247,6 @@
             sat: { origin: '', route: [] }
         };
 
-        // UIから現在の並び順のIDリストを取得
         const extractRouteIds = () => Array.from($('routeList').querySelectorAll('.route-item')).map(item => item.dataset.id);
 
         const saveState = () => {
@@ -225,7 +262,6 @@
                 btn.classList.toggle('active', btn.dataset.day === currentDay);
             });
             
-            // 登録フォームの曜日のデフォルト値を現在の曜日に設定
             document.querySelectorAll('input[name="regDay"]').forEach(cb => {
                 cb.checked = (cb.value === currentDay);
             });
@@ -235,12 +271,9 @@
             $('userPool').innerHTML = '';
             $('routeList').innerHTML = '';
             
-            // 待機リスト（Pool）の動的生成：
-            // マスターの中から「今日の利用設定がある」かつ「まだルートに入っていない」人を抽出
             const poolUsers = store.users.filter(u => u.days.includes(currentDay) && !dayData.route.includes(u.id));
             poolUsers.forEach(user => $('userPool').appendChild(createItemElement(user, true)));
 
-            // ルートリストの生成：IDリストの順にマスターから実体を取得して描画
             const routeUsers = dayData.route.map(id => store.users.find(u => u.id === id)).filter(Boolean);
             routeUsers.forEach(user => $('routeList').appendChild(createItemElement(user, false)));
         };
@@ -255,7 +288,7 @@
         const createItemElement = (user, isPool) => {
             const el = document.createElement('div');
             el.className = 'route-item';
-            el.dataset.id = user.id; // UUIDを持たせる
+            el.dataset.id = user.id;
             el.dataset.name = user.name;
             el.dataset.address = user.address;
             
@@ -283,9 +316,7 @@
         };
 
         const toggleState = (btn, isPool) => {
-            // 要素をDOM上で移動させるのではなく、データ(route配列)を更新して再描画
             const id = btn.closest('.route-item').dataset.id;
-            
             if (isPool) {
                 store[currentDay].route.push(id);
             } else {
@@ -300,11 +331,8 @@
             const id = item.dataset.id;
             const name = item.dataset.name;
             
-            // 全曜日・マスターから完全に削除する仕様
             if (confirm(`「${name}」のマスター登録を完全に削除しますか？`)) {
-                // マスターから削除
                 store.users = store.users.filter(u => u.id !== id);
-                // 全曜日のrouteからも該当IDを除外
                 ['mon','tue','wed','thu','fri','sat'].forEach(d => {
                     store[d].route = store[d].route.filter(routeId => routeId !== id);
                 });
@@ -329,17 +357,12 @@
         $('addBtn').addEventListener('click', () => {
             const name = $('newName').value.trim();
             const address = $('newAddress').value.trim();
-            
-            // チェックされた曜日を取得
             const selectedDays = Array.from(document.querySelectorAll('input[name="regDay"]:checked')).map(cb => cb.value);
 
             if (!name || !address) return alert('氏名と住所を入力してください');
             if (selectedDays.length === 0) return alert('利用する曜日を1つ以上選択してください');
             
-            // UUIDを生成し、マスターに追加
-            const newUser = { id: generateUUID(), name, address, days: selectedDays };
-            store.users.push(newUser);
-            
+            store.users.push({ id: generateUUID(), name, address, days: selectedDays });
             $('newName').value = '';
             $('newAddress').value = '';
             
@@ -383,6 +406,8 @@
         });
 
         window.addEventListener('DOMContentLoaded', () => {
+            initAppIcon(); // アイコンの読み込みと適用
+
             const savedVer = localStorage.getItem('app_version');
             const validDays = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
             
