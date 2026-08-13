@@ -3,106 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>送迎ルート管理</title>
+    <title>ルート管理</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="送迎ルート管理">
     
-    <!-- PWA・ファビコン用アイコン設定 -->
     <link rel="icon" type="image/png" id="dynamic-favicon">
     <link rel="apple-touch-icon" id="apple-touch-icon-link">
 
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <style>
         :root {
-            --bg-color: #f0f2f5; --surface-color: #ffffff; --primary-color: #0f172a;
-            --accent-color: #3b82f6; --text-main: #0f172a; --text-muted: #64748b;
-            --border-color: #e2e8f0; --danger-color: #ef4444;
-            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05); --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
-            --radius-md: 12px; --radius-lg: 16px; --radius-full: 9999px; --nav-height: 70px;
+            --bg-color: #090d16;
+            --surface-color: rgba(255, 255, 255, 0.03);
+            --surface-solid: #131b2e;
+            --primary-color: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.25);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --danger-color: #fb7185;
+            --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-full: 9999px;
+            --nav-height: 72px;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color); color: var(--text-main);
-            -webkit-user-select: none; user-select: none; padding-bottom: calc(var(--nav-height) + 20px);
+            background: linear-gradient(135deg, #090d16 0%, #1a233a 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            -webkit-user-select: none; user-select: none;
+            padding-bottom: calc(var(--nav-height) + 24px);
         }
 
-        .app-container { max-width: 480px; margin: 0 auto; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
-        header { padding: 8px 0 4px; display: flex; align-items: center; gap: 12px; }
+        .app-container { max-width: 480px; margin: 0 auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 20px; }
         
+        header { padding: 4px 0 8px; display: flex; align-items: center; justify-content: space-between; }
+        .header-left { display: flex; align-items: center; gap: 12px; }
         .app-icon {
-            width: 40px; height: 40px; border-radius: 10px; object-fit: cover;
-            border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);
+            width: 44px; height: 44px; border-radius: 12px; object-fit: cover;
+            border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.5);
         }
-        
-        h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
+        h1 { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.01em; background: linear-gradient(90deg, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        .card { background-color: var(--surface-color); border-radius: var(--radius-lg); padding: 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .section-title { font-size: 0.95rem; font-weight: 600; color: var(--text-muted); }
+        .card {
+            background: var(--surface-solid);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow-glass);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
 
-        .input-group { display: flex; gap: 8px; margin-bottom: 8px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .section-title { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+        .input-group { display: flex; gap: 8px; margin-bottom: 10px; }
         input[type="text"] {
-            flex: 1; appearance: none; border: 1px solid var(--border-color); background-color: #f8fafc;
-            border-radius: var(--radius-md); padding: 12px 14px; font-size: 1rem; color: var(--text-main); width: 100%;
+            flex: 1; appearance: none; border: 1px solid var(--border-color); background-color: rgba(0, 0, 0, 0.2);
+            border-radius: var(--radius-md); padding: 12px 14px; font-size: 0.95rem; color: var(--text-main); width: 100%;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        input[type="text"]:focus { outline: none; border-color: var(--accent-color); background-color: var(--surface-color); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        input[type="text"]:focus { outline: none; border-color: var(--primary-color); background-color: rgba(0, 0, 0, 0.4); box-shadow: 0 0 0 4px var(--accent-glow); }
+        input[type="text"]::placeholder { color: #475569; }
 
-        .day-chips { display: flex; gap: 4px; margin: 12px 0; justify-content: space-between; }
+        .day-chips { display: flex; gap: 6px; margin: 14px 0; justify-content: space-between; }
         .day-chip { flex: 1; position: relative; cursor: pointer; }
         .day-chip input { position: absolute; opacity: 0; width: 0; height: 0; }
         .day-chip span {
-            display: block; text-align: center; padding: 8px 0; font-size: 0.85rem; font-weight: 600;
+            display: block; text-align: center; padding: 10px 0; font-size: 0.8rem; font-weight: 700;
             border: 1px solid var(--border-color); border-radius: var(--radius-md);
-            color: var(--text-muted); background: var(--surface-color); transition: all 0.2s ease;
+            color: var(--text-muted); background: rgba(255,255,255,0.02); transition: all 0.2s ease;
         }
-        .day-chip input:checked + span { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+        .day-chip input:checked + span { background: var(--primary-color); color: #090d16; border-color: var(--primary-color); box-shadow: 0 0 12px var(--accent-glow); }
 
-        button { border: none; font-family: inherit; cursor: pointer; border-radius: var(--radius-md); font-weight: 600; display: inline-flex; align-items: center; justify-content: center; }
-        button:active { transform: scale(0.96); }
-        .btn-primary { background-color: var(--primary-color); color: white; padding: 12px 16px; width: 100%; }
-        .btn-secondary { background-color: #f1f5f9; color: var(--text-main); padding: 8px 12px; font-size: 0.85rem; border: 1px solid var(--border-color); }
-        .btn-text { background: transparent; color: var(--accent-color); padding: 4px 8px; font-size: 0.85rem; }
+        button { border: none; font-family: inherit; cursor: pointer; border-radius: var(--radius-md); font-weight: 600; display: inline-flex; align-items: center; justify-content: center; transition: transform 0.1s ease, filter 0.2s ease; }
+        button:active { transform: scale(0.96); filter: brightness(0.9); }
+        
+        .btn-primary { background: linear-gradient(135deg, #38bdf8, #0284c7); color: #090d16; padding: 14px 16px; width: 100%; font-size: 0.95rem; box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3); }
+        .btn-secondary { background: rgba(255,255,255,0.06); color: var(--text-main); padding: 10px 14px; font-size: 0.85rem; border: 1px solid var(--border-color); }
+        .btn-text { background: transparent; color: var(--primary-color); padding: 4px 8px; font-size: 0.85rem; }
 
         .list-container { display: flex; flex-direction: column; gap: 10px; min-height: 80px; }
-        #userPool { flex-direction: row; flex-wrap: wrap; padding: 12px; background-color: #e2e8f0; border-radius: var(--radius-lg); }
+        #userPool { flex-direction: row; flex-wrap: wrap; padding: 14px; background: rgba(0, 0, 0, 0.25); border-radius: var(--radius-lg); border: 1px solid var(--border-color); }
 
         .route-item {
-            background-color: var(--surface-color); border: 1px solid var(--border-color); border-radius: var(--radius-md);
-            padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow-sm); width: 100%;
+            background: var(--surface-solid); border: 1px solid var(--border-color); border-radius: var(--radius-md);
+            padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.2); width: 100%;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        #userPool .route-item { width: auto; flex: 1 1 140px; padding: 10px 12px; box-shadow: none; }
+        #userPool .route-item { width: auto; flex: 1 1 130px; padding: 10px 12px; background: rgba(255,255,255,0.05); }
         #userPool .route-item .address, #userPool .route-item .drag-handle { display: none !important; }
-        .route-item.sortable-drag { background: var(--surface-color); transform: scale(1.02); box-shadow: var(--shadow-lg); z-index: 100; }
-        .route-item.sortable-ghost { opacity: 0.4; background-color: #f8fafc; border: 2px dashed var(--border-color); }
+        .route-item.sortable-drag { background: #1e293b; transform: scale(1.03); box-shadow: 0 12px 24px rgba(0,0,0,0.5); z-index: 100; border-color: var(--primary-color); }
+        .route-item.sortable-ghost { opacity: 0.2; background-color: transparent; border: 2px dashed var(--primary-color); }
 
         .item-info { display: flex; flex-direction: column; overflow: hidden; flex: 1; padding-right: 8px; }
-        .item-name { font-size: 1rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
+        .item-name { font-size: 0.95rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
         .item-address { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        .item-actions { display: flex; align-items: center; gap: 4px; }
-        .btn-icon { width: 36px; height: 36px; border-radius: var(--radius-md); background: #f8fafc; color: var(--text-muted); font-size: 1.1rem; }
-        .drag-handle { color: var(--border-color); padding: 8px; cursor: grab; display: flex; }
+        .item-actions { display: flex; align-items: center; gap: 6px; }
+        .btn-icon { width: 36px; height: 36px; border-radius: var(--radius-md); background: rgba(255,255,255,0.05); color: var(--text-muted); font-size: 1.1rem; border: 1px solid var(--border-color); }
+        .btn-icon:hover { color: var(--text-main); background: rgba(255,255,255,0.1); }
+        .drag-handle { color: var(--text-muted); padding: 6px; cursor: grab; display: flex; }
         .drag-handle svg { width: 20px; height: 20px; fill: currentColor; }
 
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: var(--nav-height); background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid rgba(0,0,0,0.05); display: flex; justify-content: space-around; align-items: center; padding: 0 8px; padding-bottom: env(safe-area-inset-bottom); z-index: 50; }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: transparent; color: var(--text-muted); font-size: 0.8rem; font-weight: 600; border-radius: 0; }
-        .nav-item.active { color: var(--accent-color); }
-        .nav-indicator { width: 4px; height: 4px; border-radius: 50%; background-color: transparent; margin-top: 4px; }
-        .nav-item.active .nav-indicator { background-color: var(--accent-color); }
+        .bottom-nav { 
+            position: fixed; bottom: 0; left: 0; right: 0; height: var(--nav-height); 
+            background: rgba(9, 13, 22, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
+            border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; align-items: center; 
+            padding: 0 8px; padding-bottom: env(safe-area-inset-bottom); z-index: 50; 
+        }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: transparent; color: var(--text-muted); font-size: 0.8rem; font-weight: 700; border-radius: 0; transition: color 0.2s; }
+        .nav-item.active { color: var(--primary-color); }
+        .nav-indicator { width: 6px; height: 6px; border-radius: 50%; background-color: transparent; margin-top: 4px; box-shadow: 0 0 8px var(--primary-color); }
+        .nav-item.active .nav-indicator { background-color: var(--primary-color); }
 
-        .fab { position: fixed; right: 20px; bottom: calc(var(--nav-height) + 20px); width: 60px; height: 60px; border-radius: var(--radius-full); background-color: var(--primary-color); color: white; box-shadow: var(--shadow-lg); display: flex; align-items: center; justify-content: center; z-index: 40; }
-        .fab svg { width: 24px; height: 24px; fill: white; }
+        .fab { 
+            position: fixed; right: 20px; bottom: calc(var(--nav-height) + 20px); width: 64px; height: 64px; 
+            border-radius: var(--radius-full); background: linear-gradient(135deg, #38bdf8, #0284c7); color: #090d16; 
+            box-shadow: 0 8px 24px rgba(56, 189, 248, 0.4); display: flex; align-items: center; justify-content: center; z-index: 40; 
+            animation: pulse-glow 3s infinite;
+        }
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.4); }
+            70% { box-shadow: 0 0 0 14px rgba(56, 189, 248, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+        }
+        .fab svg { width: 26px; height: 26px; fill: #090d16; }
 
-        .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.4); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 1000; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(5, 8, 15, 0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 1000; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-content { background: var(--surface-color); width: 90%; max-width: 360px; border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-lg); transform: translateY(10px); transition: transform 0.2s ease; }
+        .modal-content { background: var(--surface-solid); width: 90%; max-width: 360px; border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-glass); border: 1px solid var(--border-color); transform: translateY(12px); transition: transform 0.2s ease; }
         .modal-overlay.active .modal-content { transform: translateY(0); }
-        .modal-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; }
+        .modal-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; color: #fff; }
         .modal-body { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 24px; }
-        .modal-data-box { background: #f8fafc; padding: 12px; border-radius: var(--radius-md); margin-top: 12px; color: var(--text-main); font-weight: 500; word-break: break-all;}
+        .modal-data-box { background: rgba(0, 0, 0, 0.3); padding: 12px; border-radius: var(--radius-md); margin-top: 12px; color: var(--text-main); font-weight: 500; word-break: break-all; border: 1px solid var(--border-color); }
         .modal-actions { display: flex; gap: 12px; }
         .modal-btn { flex: 1; padding: 12px; font-size: 0.95rem; }
     </style>
@@ -111,8 +151,10 @@
 
     <div class="app-container">
         <header>
-            <img src="" alt="アイコン" class="app-icon" id="headerIcon">
-            <h1>ルート管理</h1>
+            <div class="header-left">
+                <img src="" alt="アイコン" class="app-icon" id="headerIcon">
+                <h1>ルート管理</h1>
+            </div>
         </header>
 
         <!-- マスター登録カード -->
@@ -120,12 +162,12 @@
             <div class="section-header">
                 <span class="section-title">起点と利用者マスター登録</span>
             </div>
-            <div class="input-group" style="margin-bottom: 16px;">
+            <div class="input-group" style="margin-bottom: 14px;">
                 <input type="text" id="originInput" placeholder="本日の出発地点（現在地など）">
                 <button type="button" class="btn-secondary" onclick="fetchLocation()">GPS</button>
             </div>
             
-            <div style="border-top: 1px dashed var(--border-color); padding-top: 16px;">
+            <div style="border-top: 1px solid var(--border-color); padding-top: 14px;">
                 <div class="input-group">
                     <input type="text" id="newName" placeholder="氏名" style="flex: 1;">
                     <input type="text" id="newAddress" placeholder="住所" style="flex: 1.5;">
@@ -154,7 +196,7 @@
         <!-- 送迎ルート -->
         <div>
             <div class="section-header">
-                <span class="section-title">送迎ルート</span>
+                <span class="section-title">送迎ルート順序</span>
                 <button type="button" class="btn-text" onclick="returnAll()">すべて待機に戻す</button>
             </div>
             <div id="routeList" class="list-container"></div>
@@ -192,29 +234,10 @@
     </div>
 
     <script>
-        const APP_VERSION = 'v17_icon_fix';
+        const APP_VERSION = 'v18_lux_dark';
         const $ = id => document.getElementById(id);
 
-        // ご提示いただいたコアラ車椅子の画像を埋め込み
-        const koalaBase64Data = (async () => {
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.crossOrigin = "anonymous";
-                img.src = "名称未設定のデザイン.png";
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = img.naturalWidth || 512;
-                    canvas.height = img.naturalHeight || 512;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0);
-                    resolve(canvas.toDataURL('image/png'));
-                };
-                img.onerror = () => resolve('');
-            });
-        })();
-
         const initAppIcon = async () => {
-            // まずローカルファイルからの直接読み込みを試行
             let dataUrl = '';
             try {
                 const img = new Image();
@@ -303,8 +326,8 @@
             el.dataset.name = user.name;
             el.dataset.address = user.address;
             
-            const iconAdd = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>`;
-            const iconRemove = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+            const iconAdd = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>`;
+            const iconRemove = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
             const iconTrash = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--danger-color)" stroke-width="2" fill="none"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
             const iconDrag = `<svg viewBox="0 0 24 24"><path d="M3 15h18v-2H3v2zm0 4h18v-2H3v2zm0-8h18V9H3v2zm0-6v2h18V5H3z"/></svg>`;
 
