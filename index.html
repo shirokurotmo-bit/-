@@ -331,6 +331,12 @@
             color: var(--text-main);
         }
 
+        .action-btn.map:hover {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--primary);
+            border-color: rgba(56, 189, 248, 0.4);
+        }
+
         .action-btn.danger:hover {
             background: var(--danger-glow);
             color: var(--danger);
@@ -566,7 +572,7 @@
     </div>
 
     <script>
-        const APP_VERSION = 'v22_ultimate_stable';
+        const APP_VERSION = 'v24_single_map_support';
         const VALID_DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
         const $ = id => document.getElementById(id);
 
@@ -620,12 +626,10 @@
         };
 
         const render = () => {
-            // ナビゲーションの有効化状態
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.classList.toggle('active', tab.dataset.day === currentDay);
             });
 
-            // 登録チェックボックスの同期
             document.querySelectorAll('input[name="regDay"]').forEach(cb => {
                 cb.checked = (cb.value === currentDay);
             });
@@ -638,11 +642,9 @@
             poolContainer.innerHTML = '';
             routeContainer.innerHTML = '';
 
-            // プール用ユーザー (該当曜日に利用し、かつルートに含まれていない)
             const poolUsers = store.users.filter(u => u.days.includes(currentDay) && !dayData.route.includes(u.id));
             poolUsers.forEach(u => poolContainer.appendChild(createCard(u, true)));
 
-            // ルート用ユーザー
             const routeUsers = dayData.route.map(id => store.users.find(u => u.id === id)).filter(Boolean);
             routeUsers.forEach(u => routeContainer.appendChild(createCard(u, false)));
         };
@@ -654,6 +656,7 @@
 
             const iconAdd = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>`;
             const iconRemove = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+            const iconMap = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`;
             const iconTrash = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
             const iconDrag = `<svg viewBox="0 0 24 24"><path d="M3 15h18v-2H3v2zm0 4h18v-2H3v2zm0-8h18V9H3v2zm0-6v2h18V5H3z"/></svg>`;
 
@@ -663,6 +666,9 @@
                     <span class="item-address">${sanitize(user.address)}</span>
                 </div>
                 <div class="item-actions">
+                    <button type="button" class="action-btn map btn-single-map" title="この場所をマップで表示">
+                        ${iconMap}
+                    </button>
                     <button type="button" class="action-btn btn-toggle" title="${isPool ? '追加' : '解除'}">
                         ${isPool ? iconAdd : iconRemove}
                     </button>
@@ -675,11 +681,20 @@
             return card;
         };
 
-        // イベントデリゲーションの統一処理（バグの根絶）
         document.addEventListener('click', e => {
             const card = e.target.closest('.item-card');
             if (!card) return;
             const id = card.dataset.id;
+
+            // 単体マップ表示
+            if (e.target.closest('.btn-single-map')) {
+                const user = store.users.find(u => u.id === id);
+                if (user && user.address) {
+                    const singleUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(user.address)}`;
+                    window.location.href = singleUrl;
+                }
+                return;
+            }
 
             if (e.target.closest('.btn-toggle')) {
                 const route = store[currentDay].route;
@@ -702,7 +717,6 @@
             }
         });
 
-        // 曜日切り替え
         document.querySelectorAll('.nav-tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 const day = tab.dataset.day;
@@ -714,7 +728,6 @@
             });
         });
 
-        // 登録ボタン
         $('addMasterBtn').addEventListener('click', () => {
             const name = $('newName').value.trim();
             const address = $('newAddress').value.trim();
@@ -740,10 +753,8 @@
             render();
         });
 
-        // 起点入力の同期
         $('originInput').addEventListener('input', saveState);
 
-        // GPS取得
         $('gpsBtn').addEventListener('click', () => {
             if (!navigator.geolocation) {
                 alert('GPS機能がサポートされていません');
@@ -764,7 +775,6 @@
             );
         });
 
-        // 一括解除
         $('clearRouteBtn').addEventListener('click', () => {
             if (!store[currentDay].route.length) return;
             store[currentDay].route = [];
@@ -772,7 +782,6 @@
             render();
         });
 
-        // モーダル管理
         let compiledMapUrl = '';
         const setModalOpen = open => $('mapModal').classList.toggle('active', open);
 
@@ -795,21 +804,29 @@
 
             $('modalRouteSummary').textContent = `[起点] ${origin.includes(',') ? 'GPS現在地' : origin} → ` + names.join(' → ');
 
-            let url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(addresses[addresses.length - 1])}&travelmode=driving`;
+            const cleanOrigin = encodeURIComponent(origin);
+            const cleanDestination = encodeURIComponent(addresses[addresses.length - 1]);
+            
+            let url = `https://www.google.com/maps/dir/?api=1&origin=${cleanOrigin}&destination=${cleanDestination}&travelmode=driving`;
+
             if (addresses.length > 1) {
-                url += `&waypoints=${addresses.slice(0, -1).map(encodeURIComponent).join('|')}`;
+                const waypoints = addresses.slice(0, -1).map(addr => encodeURIComponent(addr)).join('|');
+                url += `&waypoints=${waypoints}`;
             }
+
             compiledMapUrl = url;
             setModalOpen(true);
         });
 
         $('closeModalBtn').addEventListener('click', () => setModalOpen(false));
         $('mapModal').addEventListener('click', e => { if (e.target === $('mapModal')) setModalOpen(false); });
+        
         $('launchMapBtn').addEventListener('click', () => {
-            if (compiledMapUrl) window.location.assign(compiledMapUrl);
+            if (compiledMapUrl) {
+                window.location.href = compiledMapUrl;
+            }
         });
 
-        // 初期化 & Sortable設定
         window.addEventListener('DOMContentLoaded', () => {
             loadState();
             render();
