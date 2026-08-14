@@ -622,7 +622,7 @@
     </div>
 
     <script>
-        const APP_VERSION = 'v19_fix_toggle';
+        const APP_VERSION = 'v20_fix_toggle';
         const $ = id => document.getElementById(id);
         const VALID_DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 
@@ -781,7 +781,6 @@
                 <div class="item-actions">
                     <button type="button" class="btn-icon"
                             data-id="${user.id}"
-                            data-pool="${isPool}"
                             onclick="toggleState(this)"
                             aria-label="${isPool ? 'ルートへ追加' : '待機へ戻す'}">
                         ${isPool ? iconAdd : iconRemove}
@@ -851,15 +850,13 @@
 
         const toggleState = btn => {
             const id = btn.dataset.id;
-            const isPool = btn.dataset.pool === 'true';
             if (!id) return;
 
             const route = store[currentDay].route;
+            const isCurrentlyInRoute = route.includes(id);
 
-            if (isPool) {
-                if (!route.includes(id)) {
-                    route.push(id);
-                }
+            if (!isCurrentlyInRoute) {
+                route.push(id);
             } else {
                 store[currentDay].route = route.filter(routeId => routeId !== id);
             }
