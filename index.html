@@ -4,17 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>送迎ルート管理</title>
-
-    <!-- アプリアイコン -->
-    <link rel="icon" type="image/png" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2214%22 fill=%22%230f172a%22/%3E%3Cpath d=%22M16 46V18h12c10 0 16 5 16 14s-6 14-16 14H16zm8-7h4c5 0 8-2 8-7s-3-7-8-7h-4v14z%22 fill=%22%2338bdf8%22/%3E%3C/svg%3E">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2214%22 fill=%22%230f172a%22/%3E%3Cpath d=%22M16 46V18h12c10 0 16 5 16 14s-6 14-16 14H16zm8-7h4c5 0 8-2 8-7s-3-7-8-7h-4v14z%22 fill=%22%2338bdf8%22/%3E%3C/svg%3E">
-
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="送迎ルート管理">
 
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-
     <style>
         :root {
             --bg-color: #090d16;
@@ -33,62 +27,21 @@
             --nav-height: 72px;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background: linear-gradient(135deg, #090d16 0%, #1a233a 100%);
             color: var(--text-main);
             min-height: 100vh;
-            -webkit-user-select: none;
-            user-select: none;
+            -webkit-user-select: none; user-select: none;
             padding-bottom: calc(var(--nav-height) + 24px);
         }
 
-        .app-container {
-            max-width: 480px;
-            margin: 0 auto;
-            padding: 20px 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        header {
-            padding: 4px 0 8px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .app-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            object-fit: cover;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-        }
-
-        h1 {
-            font-size: 1.4rem;
-            font-weight: 700;
-            letter-spacing: -0.01em;
-            background: linear-gradient(90deg, #fff, #94a3b8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        .app-container { max-width: 480px; margin: 0 auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 20px; }
+        
+        header { padding: 4px 0 8px; display: flex; align-items: center; justify-content: space-between; }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        h1 { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.01em; background: linear-gradient(90deg, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
         .card {
             background: var(--surface-solid);
@@ -100,466 +53,118 @@
             -webkit-backdrop-filter: blur(16px);
         }
 
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 14px;
-        }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .section-title { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
 
-        .section-title {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .input-group {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-
+        .input-group { display: flex; gap: 8px; margin-bottom: 10px; }
         input[type="text"] {
-            flex: 1;
-            appearance: none;
-            border: 1px solid var(--border-color);
-            background-color: rgba(0, 0, 0, 0.2);
-            border-radius: var(--radius-md);
-            padding: 12px 14px;
-            font-size: 0.95rem;
-            color: var(--text-main);
-            width: 100%;
+            flex: 1; appearance: none; border: 1px solid var(--border-color); background-color: rgba(0, 0, 0, 0.2);
+            border-radius: var(--radius-md); padding: 12px 14px; font-size: 0.95rem; color: var(--text-main); width: 100%;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        input[type="text"]:focus { outline: none; border-color: var(--primary-color); background-color: rgba(0, 0, 0, 0.4); box-shadow: 0 0 0 4px var(--accent-glow); }
+        input[type="text"]::placeholder { color: #475569; }
 
-        input[type="text"]:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            background-color: rgba(0, 0, 0, 0.4);
-            box-shadow: 0 0 0 4px var(--accent-glow);
-        }
-
-        input[type="text"]::placeholder {
-            color: #475569;
-        }
-
-        .day-chips {
-            display: flex;
-            gap: 6px;
-            margin: 14px 0;
-            justify-content: space-between;
-        }
-
-        .day-chip {
-            flex: 1;
-            position: relative;
-            cursor: pointer;
-        }
-
-        .day-chip input {
-            position: absolute;
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
+        .day-chips { display: flex; gap: 6px; margin: 14px 0; justify-content: space-between; }
+        .day-chip { flex: 1; position: relative; cursor: pointer; }
+        .day-chip input { position: absolute; opacity: 0; width: 0; height: 0; }
         .day-chip span {
-            display: block;
-            text-align: center;
-            padding: 10px 0;
-            font-size: 0.8rem;
-            font-weight: 700;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            color: var(--text-muted);
-            background: rgba(255, 255, 255, 0.02);
-            transition: all 0.2s ease;
+            display: block; text-align: center; padding: 10px 0; font-size: 0.8rem; font-weight: 700;
+            border: 1px solid var(--border-color); border-radius: var(--radius-md);
+            color: var(--text-muted); background: rgba(255,255,255,0.02); transition: all 0.2s ease;
         }
+        .day-chip input:checked + span { background: var(--primary-color); color: #090d16; border-color: var(--primary-color); box-shadow: 0 0 12px var(--accent-glow); }
 
-        .day-chip input:checked + span {
-            background: var(--primary-color);
-            color: #090d16;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 12px var(--accent-glow);
-        }
+        button { border: none; font-family: inherit; cursor: pointer; border-radius: var(--radius-md); font-weight: 600; display: inline-flex; align-items: center; justify-content: center; transition: transform 0.1s ease, filter 0.2s ease; }
+        button:active { transform: scale(0.96); filter: brightness(0.9); }
+        
+        .btn-primary { background: linear-gradient(135deg, #38bdf8, #0284c7); color: #090d16; padding: 14px 16px; width: 100%; font-size: 0.95rem; box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3); }
+        .btn-secondary { background: rgba(255,255,255,0.06); color: var(--text-main); padding: 10px 14px; font-size: 0.85rem; border: 1px solid var(--border-color); }
+        .btn-text { background: transparent; color: var(--primary-color); padding: 4px 8px; font-size: 0.85rem; }
 
-        button {
-            border: none;
-            font-family: inherit;
-            cursor: pointer;
-            border-radius: var(--radius-md);
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.1s ease, filter 0.2s ease;
-        }
-
-        button:active {
-            transform: scale(0.96);
-            filter: brightness(0.9);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #38bdf8, #0284c7);
-            color: #090d16;
-            padding: 14px 16px;
-            width: 100%;
-            font-size: 0.95rem;
-            box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.06);
-            color: var(--text-main);
-            padding: 10px 14px;
-            font-size: 0.85rem;
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-text {
-            background: transparent;
-            color: var(--primary-color);
-            padding: 4px 8px;
-            font-size: 0.85rem;
-        }
-
-        .list-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            min-height: 80px;
-        }
-
-        #userPool {
-            flex-direction: row;
-            flex-wrap: wrap;
-            padding: 14px;
-            background: rgba(0, 0, 0, 0.25);
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border-color);
-        }
+        .list-container { display: flex; flex-direction: column; gap: 10px; min-height: 80px; }
+        #userPool { flex-direction: row; flex-wrap: wrap; padding: 14px; background: rgba(0, 0, 0, 0.25); border-radius: var(--radius-lg); border: 1px solid var(--border-color); gap: 8px; }
 
         .route-item {
-            background: var(--surface-solid);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 14px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            width: 100%;
+            background: var(--surface-solid); border: 1px solid var(--border-color); border-radius: var(--radius-md);
+            padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.2); width: 100%;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
+        #userPool .route-item { width: auto; flex: 1 1 130px; padding: 10px 12px; background: rgba(255,255,255,0.05); }
+        #userPool .route-item .address, #userPool .route-item .drag-handle { display: none !important; }
+        .route-item.sortable-drag { background: #1e293b; transform: scale(1.03); box-shadow: 0 12px 24px rgba(0,0,0,0.5); z-index: 100; border-color: var(--primary-color); }
+        .route-item.sortable-ghost { opacity: 0.2; background-color: transparent; border: 2px dashed var(--primary-color); }
 
-        #userPool .route-item {
-            width: auto;
-            flex: 1 1 130px;
-            padding: 10px 12px;
-            background: rgba(255, 255, 255, 0.05);
+        .item-info { display: flex; flex-direction: column; overflow: hidden; flex: 1; padding-right: 8px; }
+        .item-name { font-size: 0.95rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
+        .item-address { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .item-actions { display: flex; align-items: center; gap: 6px; }
+        .btn-icon { width: 36px; height: 36px; border-radius: var(--radius-md); background: rgba(255,255,255,0.05); color: var(--text-muted); font-size: 1.1rem; border: 1px solid var(--border-color); }
+        .btn-icon:hover { color: var(--text-main); background: rgba(255,255,255,0.1); }
+        .drag-handle { color: var(--text-muted); padding: 6px; cursor: grab; display: flex; }
+        .drag-handle svg { width: 20px; height: 20px; fill: currentColor; }
+
+        .bottom-nav { 
+            position: fixed; bottom: 0; left: 0; right: 0; height: var(--nav-height); 
+            background: rgba(9, 13, 22, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
+            border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; align-items: center; 
+            padding: 0 8px; padding-bottom: env(safe-area-inset-bottom); z-index: 50; 
         }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: transparent; color: var(--text-muted); font-size: 0.8rem; font-weight: 700; border-radius: 0; transition: color 0.2s; }
+        .nav-item.active { color: var(--primary-color); }
+        .nav-indicator { width: 6px; height: 6px; border-radius: 50%; background-color: transparent; margin-top: 4px; box-shadow: 0 0 8px var(--primary-color); }
+        .nav-item.active .nav-indicator { background-color: var(--primary-color); }
 
-        #userPool .route-item .address,
-        #userPool .route-item .drag-handle {
-            display: none !important;
+        .fab { 
+            position: fixed; right: 20px; bottom: calc(var(--nav-height) + 20px); width: 64px; height: 64px; 
+            border-radius: var(--radius-full); background: linear-gradient(135deg, #38bdf8, #0284c7); color: #090d16; 
+            box-shadow: 0 8px 24px rgba(56, 189, 248, 0.4); display: flex; align-items: center; justify-content: center; z-index: 40; 
+            animation: pulse-glow 3s infinite;
         }
-
-        .route-item.sortable-drag {
-            background: #1e293b;
-            transform: scale(1.03);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
-            z-index: 100;
-            border-color: var(--primary-color);
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.4); }
+            70% { box-shadow: 0 0 0 14px rgba(56, 189, 248, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
         }
+        .fab svg { width: 26px; height: 26px; fill: #090d16; }
 
-        .route-item.sortable-ghost {
-            opacity: 0.2;
-            background-color: transparent;
-            border: 2px dashed var(--primary-color);
-        }
-
-        .item-info {
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            flex: 1;
-            padding-right: 8px;
-        }
-
-        .item-name {
-            font-size: 0.95rem;
-            font-weight: 700;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin-bottom: 2px;
-        }
-
-        .item-address {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .item-actions {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: var(--radius-md);
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-icon:hover {
-            color: var(--text-main);
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .drag-handle {
-            color: var(--text-muted);
-            padding: 6px;
-            cursor: grab;
-            display: flex;
-        }
-
-        .drag-handle svg {
-            width: 20px;
-            height: 20px;
-            fill: currentColor;
-        }
-
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: var(--nav-height);
-            background: rgba(9, 13, 22, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding: 0 8px;
-            padding-bottom: env(safe-area-inset-bottom);
-            z-index: 50;
-        }
-
-        .nav-item {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            background: transparent;
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            font-weight: 700;
-            border-radius: 0;
-            transition: color 0.2s;
-        }
-
-        .nav-item.active {
-            color: var(--primary-color);
-        }
-
-        .nav-indicator {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background-color: transparent;
-            margin-top: 4px;
-            box-shadow: 0 0 8px var(--primary-color);
-        }
-
-        .nav-item.active .nav-indicator {
-            background-color: var(--primary-color);
-        }
-
-        .route-header {
-            gap: 10px;
-        }
-
-        .route-header-actions {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-        }
-
-        .btn-map {
-            border: 1px solid rgba(56, 189, 248, 0.45);
-            background: rgba(56, 189, 248, 0.12);
-            color: var(--primary-color);
-            border-radius: var(--radius-md);
-            padding: 8px 11px;
-            font-size: 0.78rem;
-            font-weight: 700;
-            white-space: nowrap;
-        }
-
-        .btn-map:active {
-            transform: scale(0.97);
-        }
-
-        .route-order-actions {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .route-order-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 9px;
-            border: 1px solid var(--border-color);
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-main);
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .route-order-btn:disabled {
-            opacity: 0.25;
-            cursor: default;
-        }
-
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(5, 8, 15, 0.7);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease;
-            z-index: 1000;
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .modal-content {
-            background: var(--surface-solid);
-            width: 90%;
-            max-width: 360px;
-            border-radius: var(--radius-lg);
-            padding: 24px;
-            box-shadow: var(--shadow-glass);
-            border: 1px solid var(--border-color);
-            transform: translateY(12px);
-            transition: transform 0.2s ease;
-        }
-
-        .modal-overlay.active .modal-content {
-            transform: translateY(0);
-        }
-
-        .modal-title {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            color: #fff;
-        }
-
-        .modal-body {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            line-height: 1.5;
-            margin-bottom: 24px;
-        }
-
-        .modal-data-box {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 12px;
-            border-radius: var(--radius-md);
-            margin-top: 12px;
-            color: var(--text-main);
-            font-weight: 500;
-            word-break: break-all;
-            border: 1px solid var(--border-color);
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 12px;
-        }
-
-        .modal-btn {
-            flex: 1;
-            padding: 12px;
-            font-size: 0.95rem;
-        }
-
-        @media (max-width: 380px) {
-            .app-container {
-                padding-left: 12px;
-                padding-right: 12px;
-            }
-
-            .card {
-                padding: 16px;
-            }
-
-            .input-group {
-                gap: 6px;
-            }
-
-            .day-chip span {
-                padding: 9px 0;
-            }
-        }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(5, 8, 15, 0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 1000; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-content { background: var(--surface-solid); width: 90%; max-width: 360px; border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-glass); border: 1px solid var(--border-color); transform: translateY(12px); transition: transform 0.2s ease; }
+        .modal-overlay.active .modal-content { transform: translateY(0); }
+        .modal-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; color: #fff; }
+        .modal-body { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 24px; }
+        .modal-data-box { background: rgba(0, 0, 0, 0.3); padding: 12px; border-radius: var(--radius-md); margin-top: 12px; color: var(--text-main); font-weight: 500; word-break: break-all; border: 1px solid var(--border-color); }
+        .modal-actions { display: flex; gap: 12px; }
+        .modal-btn { flex: 1; padding: 12px; font-size: 0.95rem; }
     </style>
 </head>
-
 <body>
+
     <div class="app-container">
         <header>
             <div class="header-left">
-                <img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2214%22 fill=%22%230f172a%22/%3E%3Cpath d=%22M16 46V18h12c10 0 16 5 16 14s-6 14-16 14H16zm8-7h4c5 0 8-2 8-7s-3-7-8-7h-4v14z%22 fill=%22%2338bdf8%22/%3E%3C/svg%3E" alt="送迎ルート管理アイコン" class="app-icon" id="headerIcon">
-                <h1>ルート管理</h1>
+                <h1>送迎ルート管理</h1>
             </div>
         </header>
 
-        <!-- マスター登録 -->
+        <!-- マスター登録カード -->
         <div class="card">
             <div class="section-header">
                 <span class="section-title">起点と利用者マスター登録</span>
             </div>
-
             <div class="input-group" style="margin-bottom: 14px;">
                 <input type="text" id="originInput" placeholder="本日の出発地点（現在地など）">
                 <button type="button" class="btn-secondary" onclick="fetchLocation()">GPS</button>
             </div>
-
+            
             <div style="border-top: 1px solid var(--border-color); padding-top: 14px;">
                 <div class="input-group">
                     <input type="text" id="newName" placeholder="氏名" style="flex: 1;">
                     <input type="text" id="newAddress" placeholder="住所" style="flex: 1.5;">
                 </div>
-
+                <!-- 利用曜日の選択 -->
                 <div class="day-chips">
                     <label class="day-chip"><input type="checkbox" name="regDay" value="mon"><span>月</span></label>
                     <label class="day-chip"><input type="checkbox" name="regDay" value="tue"><span>火</span></label>
@@ -568,7 +173,6 @@
                     <label class="day-chip"><input type="checkbox" name="regDay" value="fri"><span>金</span></label>
                     <label class="day-chip"><input type="checkbox" name="regDay" value="sat"><span>土</span></label>
                 </div>
-
                 <button type="button" class="btn-primary" id="addBtn">マスターに登録</button>
             </div>
         </div>
@@ -583,20 +187,20 @@
 
         <!-- 送迎ルート -->
         <div>
-            <div class="section-header route-header">
+            <div class="section-header">
                 <span class="section-title">送迎ルート順序</span>
-                <div class="route-header-actions">
-                    <button type="button" class="btn-map" id="mapBtn" onclick="openMap()">
-                        マップで案内
-                    </button>
-                    <button type="button" class="btn-text" onclick="returnAll()">すべて待機に戻す</button>
-                </div>
+                <button type="button" class="btn-text" onclick="returnAll()">すべて待機に戻す</button>
             </div>
             <div id="routeList" class="list-container"></div>
         </div>
     </div>
 
-    <!-- 曜日ナビ -->
+    <!-- Floating Action Button -->
+    <button class="fab" id="mapBtn" aria-label="マップを開く">
+        <svg viewBox="0 0 576 512"><path d="M408 120c0-13.3-10.7-24-24-24H96c-13.3 0-24 10.7-24 24v296c0 13.3 10.7 24 24 24h288c13.3 0 24-10.7 24-24V120zm160 80.9L416 339v93c0 17.8-19.2 29.1-34.7 20.5l-104.5-59L194.5 452.5C179.2 461.1 160 449.8 160 432v-93L8 200.9c-14.7-8.6-8.3-30.9 8.9-30.9h155.1l48.8-40c10.9-8.9 27.1-8.9 38 0l48.8 40h155.1c17.2 0 23.6 22.3 8.9 30.9z"/></svg>
+    </button>
+
+    <!-- Bottom Navigation -->
     <nav class="bottom-nav">
         <button class="nav-item active" data-day="mon" onclick="switchDay('mon')">月<div class="nav-indicator"></div></button>
         <button class="nav-item" data-day="tue" onclick="switchDay('tue')">火<div class="nav-indicator"></div></button>
@@ -606,7 +210,7 @@
         <button class="nav-item" data-day="sat" onclick="switchDay('sat')">土<div class="nav-indicator"></div></button>
     </nav>
 
-    <!-- マップ確認モーダル -->
+    <!-- Modern Modal -->
     <div class="modal-overlay" id="confirmModal">
         <div class="modal-content">
             <div class="modal-title">マップを起動します</div>
@@ -622,12 +226,20 @@
     </div>
 
     <script>
-        const APP_VERSION = 'v18_lux_dark';
+        const APP_VERSION = 'v22_fix_toggle';
         const $ = id => document.getElementById(id);
-        const VALID_DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+        
+        const escapeHTML = str => {
+            if (!str) return '';
+            return String(str).replace(/[&<>"']/g, match => {
+                const escapeMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+                return escapeMap[match];
+            });
+        };
+
+        const generateUUID = () => crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2) + Date.now().toString(36);
 
         let currentDay = 'mon';
-
         let store = {
             users: [],
             mon: { origin: '', route: [] },
@@ -638,64 +250,11 @@
             sat: { origin: '', route: [] }
         };
 
-        /*
-         * 保存データが壊れていた場合でもアプリ全体が止まらないように
-         * 最低限のデータ構造を補正する。
-         */
-        const normalizeStore = data => {
-            const base = {
-                users: [],
-                mon: { origin: '', route: [] },
-                tue: { origin: '', route: [] },
-                wed: { origin: '', route: [] },
-                thu: { origin: '', route: [] },
-                fri: { origin: '', route: [] },
-                sat: { origin: '', route: [] }
-            };
-
-            if (!data || typeof data !== 'object') return base;
-
-            base.users = Array.isArray(data.users)
-                ? data.users.filter(u => u && u.id && typeof u.name === 'string' && typeof u.address === 'string')
-                    .map(u => ({
-                        id: String(u.id),
-                        name: u.name,
-                        address: u.address,
-                        days: Array.isArray(u.days)
-                            ? u.days.filter(day => VALID_DAYS.includes(day))
-                            : []
-                    }))
-                : [];
-
-            VALID_DAYS.forEach(day => {
-                if (data[day] && typeof data[day] === 'object') {
-                    base[day].origin = typeof data[day].origin === 'string' ? data[day].origin : '';
-                    base[day].route = Array.isArray(data[day].route)
-                        ? data[day].route.map(String).filter(id => base.users.some(u => u.id === id))
-                        : [];
-                }
-            });
-
-            return base;
-        };
-
-        const generateUUID = () => {
-            if (window.crypto && typeof crypto.randomUUID === 'function') {
-                return crypto.randomUUID();
-            }
-            return Math.random().toString(36).substring(2) + Date.now().toString(36);
-        };
-
-        const extractRouteIds = () =>
-            Array.from($('routeList').querySelectorAll('.route-item'))
-                .map(item => item.dataset.id);
+        const extractRouteIds = () => Array.from($('routeList').querySelectorAll('.route-item')).map(item => item.dataset.id);
 
         const saveState = () => {
-            if (!store[currentDay]) return;
-
             store[currentDay].origin = $('originInput').value;
             store[currentDay].route = extractRouteIds();
-
             localStorage.setItem('app_version', APP_VERSION);
             localStorage.setItem('app_data', JSON.stringify(store));
             localStorage.setItem('app_day', currentDay);
@@ -705,41 +264,24 @@
             document.querySelectorAll('.nav-item').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.day === currentDay);
             });
-
-            /*
-             * 新規登録時の初期値として現在曜日を選択。
-             * 既存の選択状態を毎回リセットするのは意図した動作。
-             */
+            
             document.querySelectorAll('input[name="regDay"]').forEach(cb => {
                 cb.checked = (cb.value === currentDay);
             });
 
             const dayData = store[currentDay];
-
             $('originInput').value = dayData.origin;
             $('userPool').innerHTML = '';
             $('routeList').innerHTML = '';
+            
+            const poolUsers = store.users.filter(u => u.days.includes(currentDay) && !dayData.route.includes(u.id));
+            poolUsers.forEach(user => $('userPool').appendChild(createItemElement(user, true)));
 
-            const poolUsers = store.users.filter(
-                user => user.days.includes(currentDay) && !dayData.route.includes(user.id)
-            );
-
-            poolUsers.forEach(user => {
-                $('userPool').appendChild(createItemElement(user, true));
-            });
-
-            const routeUsers = dayData.route
-                .map(id => store.users.find(user => user.id === id))
-                .filter(Boolean);
-
-            routeUsers.forEach(user => {
-                $('routeList').appendChild(createItemElement(user, false));
-            });
+            const routeUsers = dayData.route.map(id => store.users.find(u => u.id === id)).filter(Boolean);
+            routeUsers.forEach(user => $('routeList').appendChild(createItemElement(user, false)));
         };
 
-        const switchDay = day => {
-            if (!VALID_DAYS.includes(day) || day === currentDay) return;
-
+        const switchDay = (day) => {
             saveState();
             currentDay = day;
             renderUI();
@@ -748,174 +290,74 @@
 
         const createItemElement = (user, isPool) => {
             const el = document.createElement('div');
-
             el.className = 'route-item';
             el.dataset.id = user.id;
             el.dataset.name = user.name;
             el.dataset.address = user.address;
-
-            const iconAdd = `
-                <svg viewBox="0 0 24 24" width="18" height="18"
-                     stroke="currentColor" stroke-width="2.5" fill="none">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>`;
-
-            const iconRemove = `
-                <svg viewBox="0 0 24 24" width="18" height="18"
-                     stroke="currentColor" stroke-width="2.5" fill="none">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>`;
-
-            const iconTrash = `
-                <svg viewBox="0 0 24 24" width="16" height="16"
-                     stroke="var(--danger-color)" stroke-width="2" fill="none">
-                    <polyline points="3 6 5 6 21 6"></polyline>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                </svg>`;
-
-            const iconDrag = `
-                <svg viewBox="0 0 24 24">
-                    <path d="M3 15h18v-2H3v2zm0 4h18v-2H3v2zm0-8h18V9H3v2zm0-6v2h18V5H3z"/>
-                </svg>`;
+            
+            const iconAdd = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>`;
+            const iconRemove = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+            const iconTrash = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--danger-color)" stroke-width="2" fill="none"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
+            const iconDrag = `<svg viewBox="0 0 24 24"><path d="M3 15h18v-2H3v2zm0 4h18v-2H3v2zm0-8h18V9H3v2zm0-6v2h18V5H3z"/></svg>`;
 
             el.innerHTML = `
                 <div class="item-info">
                     <span class="item-name">${escapeHTML(user.name)}</span>
                     <span class="item-address address">${escapeHTML(user.address)}</span>
                 </div>
-
                 <div class="item-actions">
-                    <button type="button" class="btn-icon"
-                            onclick="toggleState(this, ${isPool})"
-                            aria-label="${isPool ? 'ルートへ追加' : '待機へ戻す'}">
+                    <button type="button" class="btn-icon toggle-btn" data-id="${user.id}" data-pool="${isPool}">
                         ${isPool ? iconAdd : iconRemove}
                     </button>
-
-                    <button type="button" class="btn-icon"
-                            onclick="deleteItem(this)"
-                            aria-label="利用者を削除">
+                    <button type="button" class="btn-icon delete-btn" data-id="${user.id}" data-name="${escapeHTML(user.name)}">
                         ${iconTrash}
                     </button>
-
-                    ${isPool ? '' : `
-                        <div class="route-order-actions">
-                            <button type="button" class="route-order-btn" data-route-move="up" aria-label="1つ上へ">▲</button>
-                            <button type="button" class="route-order-btn" data-route-move="down" aria-label="1つ下へ">▼</button>
-                        </div>
-                        <div class="drag-handle" aria-label="ドラッグして順番を変更">${iconDrag}</div>
-                    `}
+                    ${isPool ? '' : `<div class="drag-handle">${iconDrag}</div>`}
                 </div>
             `;
-
-            if (!isPool) {
-                el.querySelector('[data-route-move="up"]').addEventListener('click', event => {
-                    event.stopPropagation();
-                    moveRouteItem(user.id, -1);
-                });
-
-                el.querySelector('[data-route-move="down"]').addEventListener('click', event => {
-                    event.stopPropagation();
-                    moveRouteItem(user.id, 1);
-                });
-            }
-
             return el;
         };
 
-        const escapeHTML = str => {
-            if (str === null || str === undefined) return '';
-
-            return String(str).replace(/[&<>"']/g, match => {
-                const escapeMap = {
-                    '&': '&amp;',
-                    '<': '&lt;',
-                    '>': '&gt;',
-                    '"': '&quot;',
-                    "'": '&#39;'
-                };
-
-                return escapeMap[match];
-            });
-        };
-
-        const moveRouteItem = (id, direction) => {
-            const route = store[currentDay].route;
-            const index = route.indexOf(id);
-            if (index === -1) return;
-
-            const targetIndex = index + direction;
-            if (targetIndex < 0 || targetIndex >= route.length) return;
-
-            [route[index], route[targetIndex]] = [route[targetIndex], route[index]];
-            saveState();
-            renderUI();
-        };
-
-        const toggleState = (btn, isPool) => {
-            const item = btn.closest('.route-item');
-            if (!item) return;
-
-            const id = item.dataset.id;
-            const route = store[currentDay].route;
-
-            if (isPool) {
-                if (!route.includes(id)) {
-                    route.push(id);
+        // イベント delegado による確実な動作保証
+        document.addEventListener('click', (e) => {
+            const toggleTarget = e.target.closest('.toggle-btn');
+            if (toggleTarget) {
+                const id = toggleTarget.dataset.id;
+                const isPool = toggleTarget.dataset.pool === 'true';
+                if (isPool) {
+                    store[currentDay].route.push(id);
+                } else {
+                    store[currentDay].route = store[currentDay].route.filter(routeId => routeId !== id);
                 }
-            } else {
-                store[currentDay].route = route.filter(routeId => routeId !== id);
-            }
-
-            saveState();
-            renderUI();
-        };
-
-        const deleteItem = btn => {
-            const item = btn.closest('.route-item');
-            if (!item) return;
-
-            const id = item.dataset.id;
-            const name = item.dataset.name;
-
-            if (!confirm(`「${name}」のマスター登録を完全に削除しますか？`)) {
+                saveState();
+                renderUI();
                 return;
             }
 
-            store.users = store.users.filter(user => user.id !== id);
-
-            VALID_DAYS.forEach(day => {
-                store[day].route = store[day].route.filter(routeId => routeId !== id);
-            });
-
-            saveState();
-            renderUI();
-        };
+            const deleteTarget = e.target.closest('.delete-btn');
+            if (deleteTarget) {
+                const id = deleteTarget.dataset.id;
+                const name = deleteTarget.dataset.name;
+                if (confirm(`「${name}」のマスター登録を完全に削除しますか？`)) {
+                    store.users = store.users.filter(u => u.id !== id);
+                    ['mon','tue','wed','thu','fri','sat'].forEach(d => {
+                        store[d].route = store[d].route.filter(routeId => routeId !== id);
+                    });
+                    saveState();
+                    renderUI();
+                }
+                return;
+            }
+        });
 
         const fetchLocation = () => {
-            if (!navigator.geolocation) {
-                alert('GPS非対応です');
-                return;
-            }
-
+            if (!navigator.geolocation) return alert('GPS非対応です');
             const input = $('originInput');
             input.value = '取得中...';
-
             navigator.geolocation.getCurrentPosition(
-                pos => {
-                    input.value = `${pos.coords.latitude},${pos.coords.longitude}`;
-                    saveState();
-                },
-                () => {
-                    alert('GPSの取得に失敗しました');
-                    input.value = '';
-                    saveState();
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 5000
-                }
+                pos => { input.value = `${pos.coords.latitude},${pos.coords.longitude}`; saveState(); },
+                () => { alert('GPSの取得に失敗しました'); input.value = ''; },
+                { enableHighAccuracy: true, timeout: 5000 }
             );
         };
 
@@ -924,158 +366,72 @@
         $('addBtn').addEventListener('click', () => {
             const name = $('newName').value.trim();
             const address = $('newAddress').value.trim();
+            const selectedDays = Array.from(document.querySelectorAll('input[name="regDay"]:checked')).map(cb => cb.value);
 
-            const selectedDays = Array.from(
-                document.querySelectorAll('input[name="regDay"]:checked')
-            ).map(cb => cb.value);
-
-            if (!name || !address) {
-                alert('氏名と住所を入力してください');
-                return;
-            }
-
-            if (selectedDays.length === 0) {
-                alert('利用する曜日を1つ以上選択してください');
-                return;
-            }
-
-            const user = {
-                id: generateUUID(),
-                name,
-                address,
-                days: selectedDays
-            };
-
-            store.users.push(user);
-
+            if (!name || !address) return alert('氏名と住所を入力してください');
+            if (selectedDays.length === 0) return alert('利用する曜日を1つ以上選択してください');
+            
+            store.users.push({ id: generateUUID(), name, address, days: selectedDays });
             $('newName').value = '';
             $('newAddress').value = '';
-
+            
             saveState();
             renderUI();
         });
 
         const returnAll = () => {
-            if (!store[currentDay].route.length) return;
-
             store[currentDay].route = [];
-
             saveState();
             renderUI();
         };
 
         let generatedMapUrl = '';
+        const toggleModal = (show) => { $('confirmModal').classList.toggle('active', show); };
 
-        const toggleModal = show => {
-            $('confirmModal').classList.toggle('active', show);
-        };
-
-        function openMap() {
-            const items = Array.from(
-                document.querySelectorAll('#routeList .route-item')
-            );
-
-            const addresses = items.map(item => item.dataset.address);
-            const names = items.map(item => item.dataset.name);
+        $('mapBtn').addEventListener('click', () => {
+            const items = Array.from(document.querySelectorAll('#routeList .route-item'));
+            const addresses = items.map(i => i.dataset.address);
+            const names = items.map(i => i.dataset.name);
             const origin = $('originInput').value.trim();
 
-            if (!addresses.length) {
-                alert('ルートに利用者が追加されていません');
-                return;
-            }
+            if (!addresses.length) return alert('ルートに利用者が追加されていません');
+            if (!origin) return alert('出発地点を入力してください');
 
-            if (!origin) {
-                alert('出発地点を入力してください');
-                return;
-            }
+            const originText = origin.includes(',') ? '現在地(GPS)' : origin;
+            $('modalFlowText').textContent = `[起点] ${originText} → ` + names.join(' → ');
 
-            const originText = origin.includes(',')
-                ? '現在地(GPS)'
-                : origin;
-
-            $('modalFlowText').textContent =
-                `[起点] ${originText} → ` + names.join(' → ');
-
-            let url =
-                `https://www.google.com/maps/dir/?api=1` +
-                `&origin=${encodeURIComponent(origin)}` +
-                `&destination=${encodeURIComponent(addresses[addresses.length - 1])}` +
-                `&travelmode=driving`;
-
+            let url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(addresses[addresses.length-1])}&travelmode=driving`;
             if (addresses.length > 1) {
-                url += `&waypoints=${
-                    addresses
-                        .slice(0, -1)
-                        .map(encodeURIComponent)
-                        .join('|')
-                }`;
+                url += `&waypoints=${addresses.slice(0, -1).map(encodeURIComponent).join('|')}`;
             }
-
+            
             generatedMapUrl = url;
             toggleModal(true);
-        }
+        });
 
         $('executeMapBtn').addEventListener('click', () => {
-            if (!generatedMapUrl) {
-                alert('GoogleマップのURLを作成できませんでした');
-                return;
-            }
-
-            window.location.assign(generatedMapUrl);
-        });
-
-        /*
-         * モーダル外クリックで閉じる
-         */
-        $('confirmModal').addEventListener('click', event => {
-            if (event.target === $('confirmModal')) {
-                toggleModal(false);
-            }
-        });
-
-        /*
-         * ESCキーでモーダルを閉じる
-         */
-        document.addEventListener('keydown', event => {
-            if (event.key === 'Escape') {
-                toggleModal(false);
-            }
+            toggleModal(false);
+            if (generatedMapUrl) window.open(generatedMapUrl, '_blank', 'noopener,noreferrer');
         });
 
         window.addEventListener('DOMContentLoaded', () => {
             const savedVer = localStorage.getItem('app_version');
-            const savedData = localStorage.getItem('app_data');
-
-            if (savedVer === APP_VERSION && savedData) {
+            const validDays = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+            
+            if (savedVer === APP_VERSION && localStorage.getItem('app_data')) {
                 try {
-                    store = normalizeStore(JSON.parse(savedData));
-
+                    store = JSON.parse(localStorage.getItem('app_data'));
                     const savedDay = localStorage.getItem('app_day');
-                    currentDay = VALID_DAYS.includes(savedDay)
-                        ? savedDay
-                        : 'mon';
-
-                } catch (error) {
-                    console.error('保存データの読み込みに失敗しました:', error);
-                    store = normalizeStore(null);
-                    currentDay = 'mon';
-                }
+                    currentDay = validDays.includes(savedDay) ? savedDay : 'mon';
+                } catch(e) { console.error('Data parsing error'); }
             } else {
-                /*
-                 * このアプリ自身が使っているキーだけ削除。
-                 * localStorage.clear() は使用しない。
-                 */
                 localStorage.removeItem('app_data');
                 localStorage.removeItem('app_day');
                 localStorage.setItem('app_version', APP_VERSION);
             }
-
+            
             renderUI();
 
-            /*
-             * 待機リストとルートリストを相互ドラッグ可能にはしない。
-             * ルート内の順番変更だけSortableJSで行う。
-             */
             new Sortable($('routeList'), {
                 animation: 200,
                 handle: '.drag-handle',
